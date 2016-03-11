@@ -76,7 +76,7 @@ def mnist_test():
 	init = tf.initialize_all_variables()
 	sess.run(init)
 
-	train_step = tf.train.GradientDescentOptimizer(0.00001).minimize(autoencoder['cost'])
+	train_step = tf.train.GradientDescentOptimizer(0.001).minimize(autoencoder['cost'])
 
 
 	# Our dataset consists of two centers with gaussian noise w/ sigma = 0.1
