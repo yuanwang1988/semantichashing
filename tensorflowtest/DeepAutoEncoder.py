@@ -84,7 +84,7 @@ def mnist_test():
 	# do 1000 training steps
 	for i in range(10000):
 		# make a batch of 100:
-		batch = mnist.train.next_batch(50)
+		batch = mnist.train.next_batch(250)
 		#display current cost
 		if i % 10 == 0:
 			print i, " cost", sess.run(autoencoder['cost'], feed_dict={x: batch[0]})
