@@ -63,3 +63,8 @@ target/
 
 #Excluded Data Folders:
 tensorflowtest/MNIST_data/
+tensorflowtest/tmp/
+tensorflowtest/mnist_models/
+MNIST_data/
+tmp/
+mnist_models/
