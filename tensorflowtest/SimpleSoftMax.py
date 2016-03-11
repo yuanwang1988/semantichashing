@@ -88,29 +88,34 @@ def main(_):
 
   # Train the model, and feed in test data and record summaries every 10 steps
 
-  for i in range(FLAGS.max_steps):
-    if i % 10 == 0:  # Record summary data and the accuracy
-      if FLAGS.fake_data:
-        batch_xs, batch_ys = mnist.train.next_batch(
-            100, fake_data=FLAGS.fake_data)
-        feed = {x: batch_xs, y_: batch_ys}
-      else:
-        feed = {x: mnist.test.images, y_: mnist.test.labels}
-      result = sess.run([merged, accuracy], feed_dict=feed)
-      summary_str = result[0]
-      acc = result[1]
-      writer.add_summary(summary_str, i)
-      print('Accuracy at step %s: %s' % (i, acc))
-    else:
-      batch_xs, batch_ys = mnist.train.next_batch(
-          100, fake_data=FLAGS.fake_data)
-      feed = {x: batch_xs, y_: batch_ys}
-      sess.run(train_step, feed_dict=feed)
+  # for i in range(FLAGS.max_steps):
+  #   if i % 10 == 0:  # Record summary data and the accuracy
+  #     if FLAGS.fake_data:
+  #       batch_xs, batch_ys = mnist.train.next_batch(
+  #           100, fake_data=FLAGS.fake_data)
+  #       feed = {x: batch_xs, y_: batch_ys}
+  #     else:
+  #       feed = {x: mnist.test.images, y_: mnist.test.labels}
+  #     result = sess.run([merged, accuracy], feed_dict=feed)
+  #     summary_str = result[0]
+  #     acc = result[1]
+  #     writer.add_summary(summary_str, i)
+  #     print('Accuracy at step %s: %s' % (i, acc))
+  #   else:
+  #     batch_xs, batch_ys = mnist.train.next_batch(
+  #         100, fake_data=FLAGS.fake_data)
+  #     feed = {x: batch_xs, y_: batch_ys}
+  #     sess.run(train_step, feed_dict=feed)
 
-    if i%200 == 0:
-      save_path = "/tmp/mnist_models/model{}.ckpt".format(i)
-      save_path = saver.save(sess, save_path)
-      print("Model saved in file: %s" % save_path)
+  #   if i%200 == 0:
+  #     save_path = "./mnist_models/model{}.ckpt".format(i)
+  #     save_path = saver.save(sess, save_path)
+  #     print("Model saved in file: %s" % save_path)
+
+  saver.restore(sess, "./mnist_models/model800.ckpt")
+  print("Model restored.")
+
+  print("Test set accuracy: {}".format(accuracy.eval(feed_dict={x: mnist.test.images, y_: mnist.test.labels})))
 
 
 if __name__ == '__main__':
