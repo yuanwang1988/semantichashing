@@ -105,12 +105,38 @@ class Model(object):
 		return test_score
 
 	def load_data(self, dataset_object):
+		'''
+		Inputs:
+			- dataset_object - a tf dataset_object
+		Output:
+			- None
+		Result:
+			- Sets the data attribute to the dataset object
+		'''
+
 		self.data = dataset_object
 
-	# def predictProb(self, input_features):
+	def predictOutput(self, input_features):
+		'''
+		Inputs:
+			- input_features: input features of one test instance
+		Outputs:
+			- output: predicted output under the model
+		'''
+		feed_dict = {self.x: input_features}
+		output = self.sess.run(self.y, feed_dict)
 
+		#print output
 
+		return output
 
+	def predict(self, input_features):
+		output = self.predictOutput(input_features)
+
+		max_index = output.argmax()
+		max_val = output[0, max_index]
+		
+		return (max_index, max_val)
 
 
 class SimpleSoftMax(Model):
@@ -155,16 +181,45 @@ class SimpleSoftMax(Model):
 		tf.initialize_all_variables().run()
 
 
+print '===================================='
 print 'Testing:'
-
+print '===================================='
+from random import randint
+import numpy as np
+from matplotlib import pyplot as plt
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
+print 'Testing training, saving, loading and evaluating'
 
 SimpleSoftMaxClassifier = SimpleSoftMax()
 SimpleSoftMaxClassifier.load_data(mnist)
-SimpleSoftMaxClassifier.train(200, 10000)
-SimpleSoftMaxClassifier.save('./mnist_models/test_model2.cpkt')
+# SimpleSoftMaxClassifier.train(200, 10000)
+# SimpleSoftMaxClassifier.save('./mnist_models/test_model2.cpkt')
 SimpleSoftMaxClassifier.load('./mnist_models/test_model2.cpkt')
 SimpleSoftMaxClassifier.eval()
+
+print '---------------------'
+print 'Testing predict:'
+SimpleSoftMaxClassifier.load('./mnist_models/test_model2.cpkt')
+
+for i in xrange(10):
+
+	num = randint(0, mnist.test.images.shape[0])
+	img = mnist.test.images[num].reshape(1, 784)
+
+	result_raw = SimpleSoftMaxClassifier.predictOutput(img)
+	result = SimpleSoftMaxClassifier.predict(img)
+
+	print 'Results: %d'%(i)
+	print 'Most likely class and confidence:'
+	print result
+	print 'Probability array:'
+	print result_raw
+
+	plt.imshow(img.reshape(28, 28), cmap=plt.cm.binary)
+	plt.show()
+
+
+print '----------------------'
