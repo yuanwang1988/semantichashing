@@ -76,7 +76,7 @@ def mnist_test():
 	init = tf.initialize_all_variables()
 	sess.run(init)
 
-	train_step = tf.train.GradientDescentOptimizer(0.0001).minimize(autoencoder['cost'])
+	train_step = tf.train.GradientDescentOptimizer(0.00001).minimize(autoencoder['cost'])
 
 
 	# Our dataset consists of two centers with gaussian noise w/ sigma = 0.1
@@ -85,11 +85,15 @@ def mnist_test():
 	for i in range(10000):
 		# make a batch of 100:
 		batch = mnist.train.next_batch(50)
-		sess.run(train_step, feed_dict={x: batch[0]})
-		if i % 100 == 0:
+		#display current cost
+		if i % 10 == 0:
 			print i, " cost", sess.run(autoencoder['cost'], feed_dict={x: batch[0]})
 			# print i, " original", batch[0]
 			# print i, " decoded", sess.run(autoencoder['decoded'], feed_dict={x: batch[0]})
+
+		#train
+		sess.run(train_step, feed_dict={x: batch[0]})
+
 
 def simple_test():
 	sess = tf.Session()
