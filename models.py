@@ -1,5 +1,20 @@
 class Model(object):
+	'''
+	Goal: The purpose of this wrapper class is to provide scikit-learn like interface to tensorflow
 
+	=============
+	Normal Usage:
+	=============
+
+	Initialize model: 		model_name = model()
+	Load data:				model.load_data(dataset_object)
+	Save model weights:		model.save(model_file_path)
+	Load model weights:		model.load(model_file_path)
+	Train model 			model.train(batch_size, num_iterations)
+	Evaluate model 			model.eval()
+
+	'''
+	
 	def __init__(self):
 		'''
 		This is a constructor for models built on tensorflow. 
@@ -24,16 +39,6 @@ class Model(object):
 
 		Attributes that do not need to be set by child init function:
 			- self.data = this is set by calling model.load_data(dataset_object)
-
-		=============
-		Normal Usage:
-		=============
-		Initialize model: 		model_name = model()
-		Load data:				model.load_data(dataset_object)
-		Save model weights:		model.save(model_file_path)
-		Load model weights:		model.load(model_file_path)
-		Train model 			model.train(batch_size, num_iterations)
-		Evaluate model 			model.eval()
 
 		'''
 
