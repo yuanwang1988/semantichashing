@@ -72,7 +72,7 @@ def create(x, layer_sizes):
 def mnist_test():
 	sess = tf.Session()
 	x = tf.placeholder("float", [None, 784])
-	autoencoder = create(x, [392, 196, 98])
+	autoencoder = create(x, [784])
 	init = tf.initialize_all_variables()
 	sess.run(init)
 
