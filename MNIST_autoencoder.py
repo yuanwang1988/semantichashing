@@ -17,7 +17,7 @@ from keras.utils import np_utils
 
 batch_size = 64
 nb_classes = 10
-nb_epoch = 10
+nb_epoch = 1
 
 # the data, shuffled and split between train and test sets
 (X_train, _), (X_test, _) = mnist.load_data()
@@ -33,11 +33,13 @@ ae2 = Sequential()
 encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392), Dense(input_dim=392, output_dim=196), Dense(input_dim=196, output_dim=98)])
 decoder2 = containers.Sequential([Dense(input_dim=98, output_dim=196), Dense(input_dim=196, output_dim=392), Dense(input_dim=392, output_dim=784)])
 
-ae2.add(AutoEncoder(encoder=encoder2, decoder=decoder2, output_reconstruction=False))   #, tie_weights=True))
+ae2.add(AutoEncoder(encoder=encoder2, decoder=decoder2, output_reconstruction=True))   #, tie_weights=True))
 ae2.compile(loss='mean_squared_error', optimizer=RMSprop())
 
 ae2.fit(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
+
+ae2.save_weights('./mnist_mdoels/kera_test', overwrite=False)
 
 y_test2 = ae2.predict(X_test)
 y_test2 = y_test2.reshape((-1,28,28))
