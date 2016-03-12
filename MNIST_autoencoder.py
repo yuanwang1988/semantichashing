@@ -4,7 +4,6 @@ import numpy as np
 np.random.seed(1337) # for reproducibility
 
 from matplotlib import pyplot as plt
-%matplotlib inline
 
 from keras.datasets import mnist
 from keras.models import Sequential
