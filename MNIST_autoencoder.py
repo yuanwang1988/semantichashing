@@ -42,5 +42,5 @@ ae2.fit(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
 
 y_test2 = ae2.predict(X_test)
 y_test2 = y_test2.reshape((-1,28,28))
-plt.imshow(y_test2[0,:,:], cmap=plt.get_cmap("gray"))
-plt.plot()
+# plt.imshow(y_test2[0,:,:], cmap=plt.get_cmap("gray"))
+# plt.plot()

@@ -161,6 +161,6 @@ def deep_test():
 			print i, " decoded", sess.run(autoencoder['decoded'], feed_dict={x: batch})
 			
 if __name__ == '__main__':
-	mnist_test()
-	#deep_test()
+	# mnist_test()
+	deep_test()
 	#simple_test()
