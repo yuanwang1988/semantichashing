@@ -33,7 +33,7 @@ ae2 = Sequential()
 encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392), Dense(input_dim=392, output_dim=196), Dense(input_dim=196, output_dim=98)])
 decoder2 = containers.Sequential([Dense(input_dim=98, output_dim=196), Dense(input_dim=196, output_dim=392), Dense(input_dim=392, output_dim=784)])
 
-ae2.add(AutoEncoder(encoder=encoder2, decoder=decoder2, output_reconstruction=True))   #, tie_weights=True))
+ae2.add(AutoEncoder(encoder=encoder2, decoder=decoder2, output_reconstruction=False))   #, tie_weights=True))
 ae2.compile(loss='mean_squared_error', optimizer=RMSprop())
 
 ae2.fit(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
