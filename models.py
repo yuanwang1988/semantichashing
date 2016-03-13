@@ -446,69 +446,69 @@ mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 print 'Testing training, saving, loading and evaluating'
 
-SimpleSoftMaxClassifier = SimpleSoftMax()
-SimpleSoftMaxClassifier.load_data(mnist)
-# SimpleSoftMaxClassifier.train(200, 10000)
-# SimpleSoftMaxClassifier.save('./mnist_models/test_model2.cpkt')
-SimpleSoftMaxClassifier.load('./mnist_models/test_model2.cpkt')
-print mnist.test.images.shape
-print mnist.test.labels.shape
+# SimpleSoftMaxClassifier = SimpleSoftMax()
+# SimpleSoftMaxClassifier.load_data(mnist)
+# # SimpleSoftMaxClassifier.train(200, 10000)
+# # SimpleSoftMaxClassifier.save('./mnist_models/test_model2.cpkt')
+# SimpleSoftMaxClassifier.load('./mnist_models/test_model2.cpkt')
+# print mnist.test.images.shape
+# print mnist.test.labels.shape
 
-SimpleSoftMaxClassifier.eval(mnist.test.images, mnist.test.labels)
+# SimpleSoftMaxClassifier.eval(mnist.test.images, mnist.test.labels)
 
-print '---------------------'
-print 'Testing predict:'
-SimpleSoftMaxClassifier.load('./mnist_models/test_model2.cpkt')
-
-for i in xrange(0):
-
-	num = randint(0, mnist.test.images.shape[0])
-	img = mnist.test.images[num].reshape(1, 784)
-
-	result_raw = SimpleSoftMaxClassifier.predictOutput(img)
-	result = SimpleSoftMaxClassifier.predict(img)
-
-	print 'Results: %d'%(i)
-	print 'Most likely class and confidence:'
-	print result
-	print 'Probability array:'
-	print result_raw
-
-	plt.imshow(img.reshape(28, 28), cmap=plt.cm.binary)
-	plt.show()
-
-
-print '----------------------'
-
-# print 'Test AutoEncoder'
-
-#AutoEncoder = AutoEncoder([784, 392, 196, 98, 49, 7])
-# AutoEncoder = AutoEncoder([784])
-# AutoEncoder.load_data(mnist)
-# AutoEncoder.load('./mnist_models/autoEncoderTestModel3.cpkt')
-# AutoEncoder.train(1000, 1000)
-# AutoEncoder.save('./mnist_models/autoEncoderTestModel3.cpkt')
-# AutoEncoder.load('./mnist_models/autoEncoderTestModel3.cpkt')
-
-# AutoEncoder.eval(mnist.test.images, mnist.test.labels)
-
-# print '----------------------'
-
+# print '---------------------'
 # print 'Testing predict:'
-# AutoEncoder.load('./mnist_models/autoEncoderTestModel3.cpkt')
+# SimpleSoftMaxClassifier.load('./mnist_models/test_model2.cpkt')
 
-# for i in xrange(5):
+# for i in xrange(0):
 
 # 	num = randint(0, mnist.test.images.shape[0])
 # 	img = mnist.test.images[num].reshape(1, 784)
 
-# 	result_raw = AutoEncoder.predictOutput(img)
+# 	result_raw = SimpleSoftMaxClassifier.predictOutput(img)
+# 	result = SimpleSoftMaxClassifier.predict(img)
+
+# 	print 'Results: %d'%(i)
+# 	print 'Most likely class and confidence:'
+# 	print result
+# 	print 'Probability array:'
+# 	print result_raw
 
 # 	plt.imshow(img.reshape(28, 28), cmap=plt.cm.binary)
 # 	plt.show()
 
-# 	plt.imshow(result_raw.reshape(28, 28), cmap=plt.cm.binary)
-# 	plt.show()
-
 
 # print '----------------------'
+
+print 'Test AutoEncoder'
+
+AutoEncoder = AutoEncoder([784, 392, 196, 98, 49, 7])
+AutoEncoder = AutoEncoder([784])
+AutoEncoder.load_data(mnist)
+#AutoEncoder.load('./mnist_models/autoEncoderTestModel3.cpkt')
+AutoEncoder.train(1000, 1000)
+AutoEncoder.save('./mnist_models/autoEncoderTestModel3.cpkt')
+AutoEncoder.load('./mnist_models/autoEncoderTestModel3.cpkt')
+
+AutoEncoder.eval(mnist.test.images, mnist.test.labels)
+
+print '----------------------'
+
+print 'Testing predict:'
+AutoEncoder.load('./mnist_models/autoEncoderTestModel3.cpkt')
+
+for i in xrange(5):
+
+	num = randint(0, mnist.test.images.shape[0])
+	img = mnist.test.images[num].reshape(1, 784)
+
+	result_raw = AutoEncoder.predictOutput(img)
+
+	plt.imshow(img.reshape(28, 28), cmap=plt.cm.binary)
+	plt.show()
+
+	plt.imshow(result_raw.reshape(28, 28), cmap=plt.cm.binary)
+	plt.show()
+
+
+print '----------------------'
