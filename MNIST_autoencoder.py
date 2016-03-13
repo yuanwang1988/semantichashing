@@ -3,6 +3,8 @@ from __future__ import print_function
 import numpy as np
 np.random.seed(1337) # for reproducibility
 
+import pickle
+
 from matplotlib import pyplot as plt
 
 from keras.datasets import mnist
@@ -39,9 +41,15 @@ ae2.compile(loss='mean_squared_error', optimizer=RMSprop())
 ae2.fit(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
-ae2.save_weights('./mnist_mdoels/kera_test', overwrite=False)
+# ae2.save_weights('./mnist_models/kera_test', overwrite=False)
+
+#ae2.load_weights('./mnist_models/kera_test')
+
+pickle.dump(ae2, open('./mnist_models/kera_test', 'wb'))
+ae2.pickle.load(open('./mnist_models/kera_test', 'rb'))
+
 
 y_test2 = ae2.predict(X_test)
 y_test2 = y_test2.reshape((-1,28,28))
-# plt.imshow(y_test2[0,:,:], cmap=plt.get_cmap("gray"))
-# plt.plot()
+plt.imshow(y_test2[0,:,:], cmap=plt.get_cmap("gray"))
+plt.show()
