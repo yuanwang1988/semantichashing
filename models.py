@@ -482,7 +482,7 @@ print 'Testing training, saving, loading and evaluating'
 
 print 'Test AutoEncoder'
 
-AutoEncoder = AutoEncoder([784, 392, 196, 98, 49, 7])
+#AutoEncoder = AutoEncoder([784, 392, 196, 98, 49, 7])
 AutoEncoder = AutoEncoder([784])
 AutoEncoder.load_data(mnist)
 #AutoEncoder.load('./mnist_models/autoEncoderTestModel3.cpkt')
