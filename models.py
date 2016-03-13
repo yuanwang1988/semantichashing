@@ -486,7 +486,7 @@ print 'Test AutoEncoder'
 AutoEncoder = AutoEncoder([784])
 AutoEncoder.load_data(mnist)
 #AutoEncoder.load('./mnist_models/autoEncoderTestModel3.cpkt')
-AutoEncoder.train(1000, 1000)
+AutoEncoder.train(1000, 10000)
 AutoEncoder.save('./mnist_models/autoEncoderTestModel3.cpkt')
 AutoEncoder.load('./mnist_models/autoEncoderTestModel3.cpkt')
 
