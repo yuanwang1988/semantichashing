@@ -90,10 +90,10 @@ class Model(object):
 
 		for i in range(num_iterations):
 			batch = self.data.train.next_batch(batch_size)
-			feed = {self.x: batch[0], self.y_: batch[1]}
+			feed = {self.x: batch[0]/255.0, self.y_: batch[1]}
 			self.sess.run(self.train_step, feed_dict=feed)
 			if i%50 == 0:
-				train_score = self.score.eval(feed_dict={self.x:batch[0], self.y_: batch[1]})
+				train_score = self.score.eval(feed_dict={self.x:batch[0]/255.0, self.y_: batch[1]})
 				print "step %d, training score %g"%(i, train_score)
 
 	def eval(self, test_set_features, test_set_targets):
@@ -208,11 +208,11 @@ class AutoEncoder(Model):
 			input_dim = int(next_layer_input.get_shape()[1])
 
 			# Initialize W using random values in interval [-1/sqrt(n) , 1/sqrt(n)]
-			#W = tf.Variable(tf.random_uniform([input_dim, dim], 1, 1.0))
+			W = tf.Variable(tf.random_uniform([input_dim, dim], 0.1, 1.0))
 
-			#tempoary hack - try to initialize W = identify
-			diagonal = tf.ones([input_dim], tf.float32)
-			W = tf.Variable(tf.add(tf.diag(diagonal), tf.random_uniform([input_dim, dim], -0.1, 0.1)))
+			# #tempoary hack - try to initialize W = identify
+			# diagonal = tf.ones([input_dim], tf.float32)
+			# W = tf.Variable(tf.add(tf.diag(diagonal), tf.random_uniform([input_dim, dim], -0.1, 0.1)))
 
 			# Initialize b to zero
 			b = tf.Variable(tf.zeros([dim]))
@@ -482,32 +482,32 @@ print 'Testing training, saving, loading and evaluating'
 
 print 'Test AutoEncoder'
 
-#AutoEncoder = AutoEncoder([784, 392, 196, 98, 49, 7])
-AutoEncoder = AutoEncoder([784])
+AutoEncoder = AutoEncoder([784, 392, 196, 98, 49])
+#AutoEncoder = AutoEncoder([784])
 AutoEncoder.load_data(mnist)
 #AutoEncoder.load('./mnist_models/autoEncoderTestModel3.cpkt')
-AutoEncoder.train(1000, 10000)
-AutoEncoder.save('./mnist_models/autoEncoderTestModel3.cpkt')
-AutoEncoder.load('./mnist_models/autoEncoderTestModel3.cpkt')
+AutoEncoder.train(1000, 250)
+AutoEncoder.save('./mnist_models/autoEncoderTestModel4.cpkt')
+AutoEncoder.load('./mnist_models/autoEncoderTestModel4.cpkt')
 
-AutoEncoder.eval(mnist.test.images, mnist.test.labels)
+# AutoEncoder.eval(mnist.test.images, mnist.test.labels)
 
 print '----------------------'
 
 print 'Testing predict:'
-AutoEncoder.load('./mnist_models/autoEncoderTestModel3.cpkt')
+AutoEncoder.load('./mnist_models/autoEncoderTestModel4.cpkt')
 
 for i in xrange(5):
 
 	num = randint(0, mnist.test.images.shape[0])
 	img = mnist.test.images[num].reshape(1, 784)
 
-	result_raw = AutoEncoder.predictOutput(img)
+	result_raw = AutoEncoder.predictOutput(img/255.0)
 
-	plt.imshow(img.reshape(28, 28), cmap=plt.cm.binary)
+	plt.imshow(img.reshape(28, 28), cmap=plt.get_cmap("gray"))
 	plt.show()
 
-	plt.imshow(result_raw.reshape(28, 28), cmap=plt.cm.binary)
+	plt.imshow(result_raw.reshape(28, 28), cmap=plt.get_cmap("gray"))
 	plt.show()
 
 

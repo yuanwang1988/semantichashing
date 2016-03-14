@@ -19,7 +19,7 @@ from keras.utils import np_utils
 
 batch_size = 64
 nb_classes = 10
-nb_epoch = 1
+nb_epoch = 10
 
 # the data, shuffled and split between train and test sets
 (X_train, _), (X_test, _) = mnist.load_data()
@@ -32,8 +32,8 @@ print(X_test.shape[0], 'test samples')
 
 ae2 = Sequential()
 
-encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392), Dense(input_dim=392, output_dim=196), Dense(input_dim=196, output_dim=98)])
-decoder2 = containers.Sequential([Dense(input_dim=98, output_dim=196), Dense(input_dim=196, output_dim=392), Dense(input_dim=392, output_dim=784)])
+encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392), Dense(input_dim=392, output_dim=196), Dense(input_dim=196, output_dim=98), Dense(input_dim=98, output_dim=49), Dense(input_dim=49, output_dim=25)])
+decoder2 = containers.Sequential([Dense(input_dim=25, output_dim=49), Dense(input_dim=49, output_dim=98), Dense(input_dim=98, output_dim=196), Dense(input_dim=196, output_dim=392), Dense(input_dim=392, output_dim=784)])
 
 ae2.add(AutoEncoder(encoder=encoder2, decoder=decoder2, output_reconstruction=True))   #, tie_weights=True))
 ae2.compile(loss='mean_squared_error', optimizer=RMSprop())
@@ -41,15 +41,15 @@ ae2.compile(loss='mean_squared_error', optimizer=RMSprop())
 ae2.fit(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
-# ae2.save_weights('./mnist_models/kera_test', overwrite=False)
+ae2.save_weights('./mnist_models/kera_test', overwrite=False)
 
-#ae2.load_weights('./mnist_models/kera_test')
-
-pickle.dump(ae2, open('./mnist_models/kera_test', 'wb'))
-ae2.pickle.load(open('./mnist_models/kera_test', 'rb'))
+ae2.load_weights('./mnist_models/kera_test')
 
 
 y_test2 = ae2.predict(X_test)
 y_test2 = y_test2.reshape((-1,28,28))
+plt.imshow(X_test.reshape((-1,28,28))[0,:,:], cmap=plt.get_cmap("gray"))
+plt.show()
+
 plt.imshow(y_test2[0,:,:], cmap=plt.get_cmap("gray"))
 plt.show()
