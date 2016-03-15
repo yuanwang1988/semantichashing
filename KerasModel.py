@@ -163,7 +163,7 @@ from keras.utils import np_utils
 
 batch_size = 200
 nb_classes = 10
-nb_epoch = 10
+nb_epoch = 25
 
 print('============================')
 print('Pre-processing data:')
@@ -195,10 +195,10 @@ print('============================')
 print('Train Model:')
 print('============================')
 
-# mnist_autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
-#        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
+mnist_autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
+       show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
-# mnist_autoencoder.save('./mnist_models/keras_autoencoder')
+mnist_autoencoder.save('./mnist_models/keras_autoencoder')
 mnist_autoencoder.load('./mnist_models/keras_autoencoder')
 
 print('============================')
