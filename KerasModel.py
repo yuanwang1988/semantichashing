@@ -191,14 +191,14 @@ mnist_autoencoder = MNIST_autoencoder()
 # print(dir(mnist_autoencoder.model.layers[0].encoder.layers[0]))
 # print(dir(mnist_autoencoder.model.layers[0].encoder.layers[1]))
 
-print('============================')
-print('Train Model:')
-print('============================')
+# print('============================')
+# print('Train Model:')
+# print('============================')
 
-mnist_autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
-       show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
+# mnist_autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
+#        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
-mnist_autoencoder.save('./mnist_models/keras_autoencoder')
+# mnist_autoencoder.save('./mnist_models/keras_autoencoder')
 mnist_autoencoder.load('./mnist_models/keras_autoencoder')
 
 print('============================')
@@ -209,17 +209,20 @@ score = mnist_autoencoder.evaluate(X_test, X_test)
 
 print('RMSE on validation set: {}'.format(score))
 
-# print('============================')
-# print('Make Predictions:')
-# print('============================')
+print('============================')
+print('Make Predictions:')
+print('============================')
 
-# # y_test2 = mnist_autoencoder.predict(X_test)
-# # y_test2 = y_test2.reshape((-1,28,28))
-# # plt.imshow(X_test.reshape((-1,28,28))[0,:,:], cmap=plt.get_cmap("gray"))
-# # plt.show()
+y_test2 = mnist_autoencoder.predict(X_test)
 
-# # plt.imshow(y_test2[0,:,:], cmap=plt.get_cmap("gray"))
-# # plt.show()
+for i in xrange(10):
+	y_test2 = y_test2.reshape((-1,28,28))
+	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
+	plt.show()
+
+	plt.imshow(y_test2[i,:,:], cmap=plt.get_cmap("gray"))
+	plt.show()
+
 
 print('============================')
 print('Get Hidden Layer:')
