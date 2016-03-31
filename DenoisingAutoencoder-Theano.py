@@ -279,9 +279,9 @@ def test_dA(learning_rate=0.1, training_epochs=15,
     :param dataset: path to the picked dataset
 
     """
-print('============================')
-print('Pre-processing data:')
-print('============================')
+    print('============================')
+    print('Pre-processing data:')
+    print('============================')
 
     # the data, shuffled and split between train and test sets
     (X_train, _), (X_test, _) = mnist.load_data()
