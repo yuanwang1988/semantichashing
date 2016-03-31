@@ -132,8 +132,8 @@ class MNIST_autoencoder(KerasModel):
 	def __init__(self):
 		ae = Sequential()
 
-		encoder = containers.Sequential([Dense(input_dim=784, output_dim=392), Dense(input_dim=392, output_dim=196), Dense(input_dim=196, output_dim=98), Dense(input_dim=98, output_dim=49), Dense(input_dim=49, output_dim=24), Dense(input_dim=24, output_dim=12),Dense(input_dim=12, output_dim=6), Dense(input_dim=6, output_dim=2)])
-		decoder = containers.Sequential([Dense(input_dim=2, output_dim=6), Dense(input_dim=6, output_dim=12), Dense(input_dim=12, output_dim=24), Dense(input_dim=24, output_dim=49), Dense(input_dim=49, output_dim=98), Dense(input_dim=98, output_dim=196), Dense(input_dim=196, output_dim=392), Dense(input_dim=392, output_dim=784)])
+		encoder = containers.Sequential([Dense(input_dim=784, output_dim=392), Dense(input_dim=392, output_dim=196), Dense(input_dim=196, output_dim=98), Dense(input_dim=98, output_dim=49)])
+		decoder = containers.Sequential([Dense(input_dim=49, output_dim=98), Dense(input_dim=98, output_dim=196), Dense(input_dim=196, output_dim=392), Dense(input_dim=392, output_dim=784)])
 
 		ae.add(AutoEncoder(encoder=encoder, decoder=decoder, output_reconstruction=True))   #, tie_weights=True))	
 		ae.compile(loss='mean_squared_error', optimizer=RMSprop())
@@ -163,7 +163,7 @@ from keras.utils import np_utils
 
 batch_size = 1000
 nb_classes = 10
-nb_epoch = 50
+nb_epoch = 5
 
 print('============================')
 print('Pre-processing data:')
@@ -195,10 +195,10 @@ mnist_autoencoder = MNIST_autoencoder()
 # print('Train Model:')
 # print('============================')
 
-# mnist_autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
-#        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
+mnist_autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
+       show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
-# mnist_autoencoder.save('./mnist_models/keras_autoencoder')
+mnist_autoencoder.save('./mnist_models/keras_autoencoder')
 mnist_autoencoder.load('./mnist_models/keras_autoencoder')
 
 print('============================')
