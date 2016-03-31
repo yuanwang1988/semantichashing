@@ -44,7 +44,7 @@ from theano.tensor.shared_randomstreams import RandomStreams
 
 #from logistic_sgd import load_data
 from keras.datasets import mnist
-from utils import tile_raster_images
+#from utils import tile_raster_images
 
 try:
     import PIL.Image as Image
@@ -353,14 +353,14 @@ def test_dA(learning_rate=0.1, training_epochs=15,
 
     training_time = (end_time - start_time)
 
-    print(('The no corruption code for file ' +
-           os.path.split(__file__)[1] +
-           ' ran for %.2fm' % ((training_time) / 60.)), file=sys.stderr)
-    image = Image.fromarray(
-        tile_raster_images(X=da.W.get_value(borrow=True).T,
-                           img_shape=(28, 28), tile_shape=(10, 10),
-                           tile_spacing=(1, 1)))
-    image.save('filters_corruption_0.png')
+    # print(('The no corruption code for file ' +
+    #        os.path.split(__file__)[1] +
+    #        ' ran for %.2fm' % ((training_time) / 60.)), file=sys.stderr)
+    # image = Image.fromarray(
+    #     tile_raster_images(X=da.W.get_value(borrow=True).T,
+    #                        img_shape=(28, 28), tile_shape=(10, 10),
+    #                        tile_spacing=(1, 1)))
+    # image.save('filters_corruption_0.png')
 
     # start-snippet-3
     #####################################
@@ -411,18 +411,18 @@ def test_dA(learning_rate=0.1, training_epochs=15,
 
     training_time = (end_time - start_time)
 
-    print(('The 30% corruption code for file ' +
-           os.path.split(__file__)[1] +
-           ' ran for %.2fm' % (training_time / 60.)), file=sys.stderr)
-    # end-snippet-3
+    # print(('The 30% corruption code for file ' +
+    #        os.path.split(__file__)[1] +
+    #        ' ran for %.2fm' % (training_time / 60.)), file=sys.stderr)
+    # # end-snippet-3
 
-    # start-snippet-4
-    image = Image.fromarray(tile_raster_images(
-        X=da.W.get_value(borrow=True).T,
-        img_shape=(28, 28), tile_shape=(10, 10),
-        tile_spacing=(1, 1)))
-    image.save('filters_corruption_30.png')
-    # end-snippet-4
+    # # # start-snippet-4
+    # # image = Image.fromarray(tile_raster_images(
+    # #     X=da.W.get_value(borrow=True).T,
+    # #     img_shape=(28, 28), tile_shape=(10, 10),
+    # #     tile_spacing=(1, 1)))
+    # # image.save('filters_corruption_30.png')
+    # # # end-snippet-4
 
     os.chdir('../')
 
