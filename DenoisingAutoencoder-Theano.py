@@ -42,7 +42,8 @@ import theano
 import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
 
-from logistic_sgd import load_data
+#from logistic_sgd import load_data
+from keras.datasets import mnist
 from utils import tile_raster_images
 
 try:
@@ -278,11 +279,21 @@ def test_dA(learning_rate=0.1, training_epochs=15,
     :param dataset: path to the picked dataset
 
     """
-    datasets = load_data(dataset)
-    train_set_x, train_set_y = datasets[0]
+print('============================')
+print('Pre-processing data:')
+print('============================')
+
+    # the data, shuffled and split between train and test sets
+    (X_train, _), (X_test, _) = mnist.load_data()
+    X_train = X_train.reshape(-1, 784)
+    X_test = X_test.reshape(-1, 784)
+    X_train = X_train.astype("float32") / 255.0
+    X_test = X_test.astype("float32") / 255.0
+    print(X_train.shape[0], 'train samples')
+    print(X_test.shape[0], 'test samples')
 
     # compute number of minibatches for training, validation and testing
-    n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size
+    n_train_batches = X_train.shape[0] // batch_size
 
     # start-snippet-2
     # allocate symbolic variables for the data
@@ -319,7 +330,7 @@ def test_dA(learning_rate=0.1, training_epochs=15,
         cost,
         updates=updates,
         givens={
-            x: train_set_x[index * batch_size: (index + 1) * batch_size]
+            x: X_train[index * batch_size: (index + 1) * batch_size]
         }
     )
 
@@ -377,7 +388,7 @@ def test_dA(learning_rate=0.1, training_epochs=15,
         cost,
         updates=updates,
         givens={
-            x: train_set_x[index * batch_size: (index + 1) * batch_size]
+            x: X_train[index * batch_size: (index + 1) * batch_size]
         }
     )
 
