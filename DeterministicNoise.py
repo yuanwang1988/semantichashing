@@ -5,7 +5,7 @@
 import numpy as np
 import tensorflow as tf
 from matplotlib import pyplot as plt
-get_ipython().magic(u'matplotlib inline')
+#get_ipython().magic(u'matplotlib inline')
 
 sess = tf.InteractiveSession()
 
@@ -26,7 +26,7 @@ b = tf.Variable( np.array([-2], dtype=np.float32))
 y_ = tf.add(tf.matmul(W,x, transpose_a=True, name="y_"),b)
 
 # Set up a gradient operation
-grad = tf.gradients(ys=y_, xs=x, name="grad")
+grad = tf.gradients(ys=y_, xs=W, name="grad")
 
 # Initialize all variables
 init = tf.initialize_all_variables()
@@ -37,18 +37,20 @@ sess.run(init)
 
 
 # Make an actual data point
-x_data = np.array([1,1], dtype=np.float32).reshape(2,1)
+x_data = np.array([1,2], dtype=np.float32).reshape(2,1)
 y_data = np.array(7, dtype=np.float32).reshape(1,1)
 
 fd = {x:x_data, y:y_data}
 
 
 # See if it's working
-print sess.run(y_, feed_dict=fd)
+print 'y = {}; should be -1'.format(sess.run(y_, feed_dict=fd))
+print '---------------'
 
 
 # See if the gradient is working.  It should just be the weights
-print sess.run(grad, feed_dict=fd)
+print 'grad = {}; should be [[1],[2]]'.format(sess.run(grad, feed_dict=fd))
+print '---------------'
 
 #########################################################
 # # Now let's add noise and see if we can still get the right gradient.  Should noise be a placeholder, variable, or constant?
@@ -57,14 +59,15 @@ print sess.run(grad, feed_dict=fd)
 noise = tf.placeholder(dtype=np.float32, shape=y_.get_shape(), name="noise")
 
 y_noise = y_ + noise
-grad_noise = tf.gradients(ys=y_noise, xs=x, name="grad_noise")
+grad_noise = tf.gradients(ys=y_noise, xs=W, name="grad_noise")
 
 
 fd_noise = {x:x_data, y:y_data, noise:np.random.randn(1,1).astype(np.float32)}
 
-print sess.run(y_noise, feed_dict=fd_noise)
-print sess.run(grad_noise, feed_dict=fd_noise)
-
+print 'y = {}'.format(sess.run(y_noise, feed_dict=fd_noise))
+print '---------------'
+print 'grad = {}; should be [[1],[2]]'.format(sess.run(grad_noise, feed_dict=fd_noise))
+print '---------------'
 # # Success!
 
 
