@@ -132,7 +132,7 @@ class MNIST_autoencoder(KerasModel):
 	def __init__(self):
 		ae = Sequential()
 
-		encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='tanh'), Dense(input_dim=392, output_dim=196, activation='tanh'), Dense(input_dim=196, output_dim=98, activation='tanh')])     #, GaussianNoise(1), Activation(activation='sigmoid')])
+		encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='tanh'), Dense(input_dim=392, output_dim=196, activation='tanh'), Dense(input_dim=196, output_dim=98, activation = 'linear'), GaussianNoise(4), Activation(activation='sigmoid')])
 		decoder2 = containers.Sequential([Dense(input_dim=98, output_dim=196, activation='tanh'), Dense(input_dim=196, output_dim=392, activation='tanh'), Dense(input_dim=392, output_dim=784, activation='softplus')])
 
 		# Dropout.  Not sure if I like it
@@ -171,7 +171,7 @@ from keras.utils import np_utils
 
 batch_size = 64
 nb_classes = 10
-nb_epoch = 100
+nb_epoch = 3
 
 print('============================')
 print('Pre-processing data:')
@@ -203,11 +203,13 @@ mnist_autoencoder = MNIST_autoencoder()
 # print('Train Model:')
 # print('============================')
 
+mnist_autoencoder.load('./mnist_models/keras_autoencoder')
+
 mnist_autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
-mnist_autoencoder.save('./mnist_models/keras_autoencoder')
-mnist_autoencoder.load('./mnist_models/keras_autoencoder')
+mnist_autoencoder.save('./mnist_models/keras_autoencoder_noise')
+mnist_autoencoder.load('./mnist_models/keras_autoencoder_noise')
 
 print('============================')
 print('Evaluate Model:')
