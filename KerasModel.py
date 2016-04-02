@@ -171,7 +171,7 @@ from keras.utils import np_utils
 
 batch_size = 64
 nb_classes = 10
-nb_epoch = 25
+nb_epoch = 100
 
 print('============================')
 print('Pre-processing data:')
@@ -217,19 +217,19 @@ score = mnist_autoencoder.evaluate(X_test, X_test)
 
 print('RMSE on validation set: {}'.format(score))
 
-# print('============================')
-# print('Make Predictions:')
-# print('============================')
+print('============================')
+print('Make Predictions:')
+print('============================')
 
-# y_test2 = mnist_autoencoder.predict(X_test)
+y_test2 = mnist_autoencoder.predict(X_test)
 
-# for i in xrange(10):
-# 	y_test2 = y_test2.reshape((-1,28,28))
-# 	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
-# 	plt.show()
+for i in xrange(10):
+	y_test2 = y_test2.reshape((-1,28,28))
+	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
+	plt.show()
 
-# 	plt.imshow(y_test2[i,:,:], cmap=plt.get_cmap("gray"))
-# 	plt.show()
+	plt.imshow(y_test2[i,:,:], cmap=plt.get_cmap("gray"))
+	plt.show()
 
 
 print('============================')
