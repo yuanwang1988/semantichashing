@@ -132,10 +132,16 @@ class MNIST_autoencoder(KerasModel):
 	def __init__(self):
 		ae = Sequential()
 
-		encoder = containers.Sequential([Dense(input_dim=784, output_dim=392), Dense(input_dim=392, output_dim=196), Dense(input_dim=196, output_dim=98), Dense(input_dim=98, output_dim=49)])
-		decoder = containers.Sequential([Dense(input_dim=49, output_dim=98), Dense(input_dim=98, output_dim=196), Dense(input_dim=196, output_dim=392), Dense(input_dim=392, output_dim=784)])
+		encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='relu'), Dense(input_dim=392, output_dim=196, activation='relu'), Dense(input_dim=196, output_dim=98, activation='relu')])     #, GaussianNoise(1), Activation(activation='sigmoid')])
+		decoder2 = containers.Sequential([Dense(input_dim=98, output_dim=196, activation='relu'), Dense(input_dim=196, output_dim=392, activation='relu'), Dense(input_dim=392, output_dim=784, activation='softplus')])
 
-		ae.add(AutoEncoder(encoder=encoder, decoder=decoder, output_reconstruction=True))   #, tie_weights=True))	
+		# Dropout.  Not sure if I like it
+		#encoder2 = containers.Sequential([Dropout(0.9, input_shape=(784,)), Dense(input_dim=784, output_dim=392, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=392, output_dim=196, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=196, output_dim=98, activation='relu'), Dropout(0.8, input_shape=(98,)), GaussianNoise(1)])
+		#decoder2 = containers.Sequential([Dropout(0.8, input_shape=(98,)), Dense(input_dim=98, output_dim=196, activation='relu'), Dropout(0.8, input_shape=(196,)), Dense(input_dim=196, output_dim=392, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=392, output_dim=784)])
+
+
+
+		ae.add(AutoEncoder(encoder=encoder2, decoder=decoder2, output_reconstruction=True))   #, tie_weights=True))
 		ae.compile(loss='mean_squared_error', optimizer=RMSprop())
 
 		self.model = ae
@@ -157,7 +163,7 @@ from keras.datasets import mnist
 from keras.models import Sequential
 from keras.layers import containers
 from keras.layers.core import Dense, AutoEncoder
-from keras.optimizers import RMSprop
+from keras.optimizers import RMSprop, Adam
 from keras.utils import np_utils
 
 
