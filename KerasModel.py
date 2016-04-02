@@ -159,17 +159,19 @@ np.random.seed(1337) # for reproducibility
 
 from matplotlib import pyplot as plt
 
+import keras
 from keras.datasets import mnist
 from keras.models import Sequential
 from keras.layers import containers
-from keras.layers.core import Dense, AutoEncoder
+from keras.layers.core import Dense, AutoEncoder, Dropout, Activation
+from keras.layers.noise import GaussianNoise
 from keras.optimizers import RMSprop, Adam
 from keras.utils import np_utils
 
 
-batch_size = 1000
+batch_size = 64
 nb_classes = 10
-nb_epoch = 5
+nb_epoch = 25
 
 print('============================')
 print('Pre-processing data:')
@@ -245,9 +247,5 @@ print('------')
 print('Layer 3')
 hidden3 = mnist_autoencoder.get_autoencoder_layer(X_test, 3)
 print(hidden3.shape)
-print('------')
-print('Layer 4')
-hidden4 = mnist_autoencoder.get_autoencoder_layer(X_test, 4)
-print(hidden4.shape)
-print(hidden4[0])
+print(hidden3[0][0:25])
 print('------')
