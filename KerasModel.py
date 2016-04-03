@@ -4,6 +4,10 @@ import numpy as np
 import theano
 
 
+def sigmoid(x):
+  return 1 / (1 + np.exp(-x))
+
+
 class KerasModel(object):
 	'''
 	Goal: The purpose of this wrapper class is to provide scikit-learn like interface to tensorflow
@@ -132,8 +136,17 @@ class MNIST_autoencoder(KerasModel):
 	def __init__(self):
 		ae = Sequential()
 
-		encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='tanh'), Dense(input_dim=392, output_dim=196, activation='tanh'), Dense(input_dim=196, output_dim=98, activation = 'linear'), GaussianNoise(4), Activation(activation='sigmoid')])
-		decoder2 = containers.Sequential([Dense(input_dim=98, output_dim=196, activation='tanh'), Dense(input_dim=196, output_dim=392, activation='tanh'), Dense(input_dim=392, output_dim=784, activation='softplus')])
+		#encoder without noise
+		encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='tanh'), \
+			Dense(input_dim=392, output_dim=196, activation='tanh'), \
+			Dense(input_dim=196, output_dim=98, activation = 'linear'), Activation(activation='tanh')])
+		#encoder with noise
+		# encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='tanh'), \
+		# 	Dense(input_dim=392, output_dim=196, activation='tanh'), \
+		# 	Dense(input_dim=196, output_dim=98, activation = 'linear'), GaussianNoise(4), Activation(activation='tanh')])
+		decoder2 = containers.Sequential([Dense(input_dim=98, output_dim=196, activation='tanh'), \
+			Dense(input_dim=196, output_dim=392, activation='tanh'), \
+			Dense(input_dim=392, output_dim=784, activation='softplus')])
 
 		# Dropout.  Not sure if I like it
 		#encoder2 = containers.Sequential([Dropout(0.9, input_shape=(784,)), Dense(input_dim=784, output_dim=392, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=392, output_dim=196, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=196, output_dim=98, activation='relu'), Dropout(0.8, input_shape=(98,)), GaussianNoise(1)])
@@ -171,7 +184,7 @@ from keras.utils import np_utils
 
 batch_size = 64
 nb_classes = 10
-nb_epoch = 3
+nb_epoch = 150
 
 print('============================')
 print('Pre-processing data:')
@@ -203,13 +216,13 @@ mnist_autoencoder = MNIST_autoencoder()
 # print('Train Model:')
 # print('============================')
 
-mnist_autoencoder.load('./mnist_models/keras_autoencoder')
+#mnist_autoencoder.load('./mnist_models/keras_autoencoder')
 
 mnist_autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
-mnist_autoencoder.save('./mnist_models/keras_autoencoder_noise')
-mnist_autoencoder.load('./mnist_models/keras_autoencoder_noise')
+mnist_autoencoder.save('./mnist_models/keras_autoencoder')
+mnist_autoencoder.load('./mnist_models/keras_autoencoder')
 
 print('============================')
 print('Evaluate Model:')
@@ -250,6 +263,22 @@ print('------')
 
 # the histogram of the data
 n, bins, patches = plt.hist(hidden2, 20, normed=1, facecolor='green', alpha=0.75)
+
+plt.xlabel('Pre-activation')
+plt.ylabel('Probability')
+plt.title('Histogram of Pre-Activation at Top Layer - No Noise')
+#plt.axis([40, 160, 0, 0.03])
+plt.grid(True)
+
+# for item in patches:
+#     item.set_height(item.get_height()/sum(n))
+
+plt.show()
+
+hidden2_post_activation = sigmoid(hidden2)
+
+# the histogram of the data
+n, bins, patches = plt.hist(hidden2_post_activation, 20, normed=1, facecolor='green', alpha=0.75)
 
 plt.xlabel('Activation')
 plt.ylabel('Probability')
