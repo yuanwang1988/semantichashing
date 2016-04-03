@@ -159,6 +159,34 @@ class MNIST_autoencoder(KerasModel):
 
 		self.model = ae
 
+class MNIST_autoencoder_frozen(KerasModel):
+	def __init__(self):
+		ae = Sequential()
+
+		#encoder without noise
+		# encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='tanh'), \
+		# 	Dense(input_dim=392, output_dim=196, activation='tanh'), \
+		# 	Dense(input_dim=196, output_dim=98, activation = 'linear'), Activation(activation='tanh')])
+		#encoder with noise
+		encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='tanh', trainable = False), \
+			Dense(input_dim=392, output_dim=196, activation='tanh', trainable = False), \
+			Dense(input_dim=196, output_dim=98, activation = 'linear', trainable = False), GaussianNoise(4), Activation(activation='tanh')])
+		decoder2 = containers.Sequential([Dense(input_dim=98, output_dim=196, activation='tanh', Trainable = False), \
+			Dense(input_dim=196, output_dim=392, activation='tanh', Trainable = False), \
+			Dense(input_dim=392, output_dim=784, activation='softplus', Trainable = False)])
+
+		# Dropout.  Not sure if I like it
+		#encoder2 = containers.Sequential([Dropout(0.9, input_shape=(784,)), Dense(input_dim=784, output_dim=392, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=392, output_dim=196, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=196, output_dim=98, activation='relu'), Dropout(0.8, input_shape=(98,)), GaussianNoise(1)])
+		#decoder2 = containers.Sequential([Dropout(0.8, input_shape=(98,)), Dense(input_dim=98, output_dim=196, activation='relu'), Dropout(0.8, input_shape=(196,)), Dense(input_dim=196, output_dim=392, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=392, output_dim=784)])
+
+
+
+		ae.add(AutoEncoder(encoder=encoder2, decoder=decoder2, output_reconstruction=True))   #, tie_weights=True))
+		ae.compile(loss='mean_squared_error', optimizer=RMSprop())
+
+		self.model = ae
+
+
 ####################################
 #Testing:
 ####################################
@@ -199,11 +227,104 @@ X_test = X_test.astype("float32") / 255.0
 print(X_train.shape[0], 'train samples')
 print(X_test.shape[0], 'test samples')
 
+# print('============================')
+# print('Initialize Model:')
+# print('============================')
+
+# mnist_autoencoder = MNIST_autoencoder()
+
+# # print(dir(mnist_autoencoder))
+# # print(dir(mnist_autoencoder.model))
+# # print(dir(mnist_autoencoder.model.layers))
+# # print(dir(mnist_autoencoder.model.layers[0]))
+# # print(dir(mnist_autoencoder.model.layers[0].encoder.layers[0]))
+# # print(dir(mnist_autoencoder.model.layers[0].encoder.layers[1]))
+
+# print('============================')
+# print('Train Model:')
+# print('============================')
+
+# mnist_autoencoder.load('./mnist_models/keras_autoencoder')
+
+# # mnist_autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
+# #        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
+
+# # mnist_autoencoder.save('./mnist_models/keras_autoencoder_noise4')
+# # mnist_autoencoder.load('./mnist_models/keras_autoencoder_noise4')
+
+# print('============================')
+# print('Evaluate Model:')
+# print('============================')
+
+# score = mnist_autoencoder.evaluate(X_test, X_test)
+
+# print('RMSE on validation set: {}'.format(score))
+
+# # print('============================')
+# # print('Make Predictions:')
+# # print('============================')
+
+# # y_test2 = mnist_autoencoder.predict(X_test)
+
+# # for i in xrange(10):
+# # 	y_test2 = y_test2.reshape((-1,28,28))
+# # 	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
+# # 	plt.show()
+
+# # 	plt.imshow(y_test2[i,:,:], cmap=plt.get_cmap("gray"))
+# # 	plt.show()
+
+
+# print('============================')
+# print('Get Hidden Layer:')
+# print('============================')
+
+# print('Layer 1')
+# hidden1 = mnist_autoencoder.get_autoencoder_layer(X_test, 1)
+# print(hidden1.shape)
+# print('------')
+# print('Layer 2')
+# hidden2 = mnist_autoencoder.get_autoencoder_layer(X_test, 2)
+# print(hidden2.shape)
+# print(hidden2[0:25])
+# print('------')
+
+# # the histogram of the data
+# n, bins, patches = plt.hist(hidden2, 100, normed=1, facecolor='green', alpha=0.75)
+
+# plt.xlabel('Pre-activation')
+# plt.ylabel('Probability')
+# plt.title('Histogram of Pre-Activation at Top Layer - No Noise')
+# #plt.axis([40, 160, 0, 0.03])
+# plt.grid(True)
+
+# # for item in patches:
+# #     item.set_height(item.get_height()/sum(n))
+
+# plt.show()
+
+# hidden2_post_activation = sigmoid(hidden2)
+
+# # the histogram of the data
+# n, bins, patches = plt.hist(hidden2_post_activation, 100, normed=1, facecolor='green', alpha=0.75)
+
+# plt.xlabel('Activation')
+# plt.ylabel('Probability')
+# plt.title('Histogram of Activation at Top Layer - No Noise')
+# #plt.axis([40, 160, 0, 0.03])
+# plt.grid(True)
+
+# # for item in patches:
+# #     item.set_height(item.get_height()/sum(n))
+
+# plt.show()
+
+
 print('============================')
 print('Initialize Model:')
 print('============================')
 
-mnist_autoencoder = MNIST_autoencoder()
+MNIST_autoencoder_frozen = MNIST_autoencoder_frozen()
 
 # print(dir(mnist_autoencoder))
 # print(dir(mnist_autoencoder.model))
@@ -221,72 +342,5 @@ mnist_autoencoder.load('./mnist_models/keras_autoencoder')
 mnist_autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
-mnist_autoencoder.save('./mnist_models/keras_autoencoder_noise4')
-mnist_autoencoder.load('./mnist_models/keras_autoencoder_noise4')
-
-print('============================')
-print('Evaluate Model:')
-print('============================')
-
-score = mnist_autoencoder.evaluate(X_test, X_test)
-
-print('RMSE on validation set: {}'.format(score))
-
-print('============================')
-print('Make Predictions:')
-print('============================')
-
-y_test2 = mnist_autoencoder.predict(X_test)
-
-for i in xrange(10):
-	y_test2 = y_test2.reshape((-1,28,28))
-	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
-	plt.show()
-
-	plt.imshow(y_test2[i,:,:], cmap=plt.get_cmap("gray"))
-	plt.show()
-
-
-print('============================')
-print('Get Hidden Layer:')
-print('============================')
-
-print('Layer 1')
-hidden1 = mnist_autoencoder.get_autoencoder_layer(X_test, 1)
-print(hidden1.shape)
-print('------')
-print('Layer 2')
-hidden2 = mnist_autoencoder.get_autoencoder_layer(X_test, 2)
-print(hidden2.shape)
-print(hidden2[0:25])
-print('------')
-
-# the histogram of the data
-n, bins, patches = plt.hist(hidden2, 20, normed=1, facecolor='green', alpha=0.75)
-
-plt.xlabel('Pre-activation')
-plt.ylabel('Probability')
-plt.title('Histogram of Pre-Activation at Top Layer - No Noise')
-#plt.axis([40, 160, 0, 0.03])
-plt.grid(True)
-
-# for item in patches:
-#     item.set_height(item.get_height()/sum(n))
-
-plt.show()
-
-hidden2_post_activation = sigmoid(hidden2)
-
-# the histogram of the data
-n, bins, patches = plt.hist(hidden2_post_activation, 20, normed=1, facecolor='green', alpha=0.75)
-
-plt.xlabel('Activation')
-plt.ylabel('Probability')
-plt.title('Histogram of Activation at Top Layer - No Noise')
-#plt.axis([40, 160, 0, 0.03])
-plt.grid(True)
-
-# for item in patches:
-#     item.set_height(item.get_height()/sum(n))
-
-plt.show()
+# mnist_autoencoder.save('./mnist_models/keras_autoencoder_noise4')
+# mnist_autoencoder.load('./mnist_models/keras_autoencoder_noise4')
