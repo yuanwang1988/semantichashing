@@ -171,9 +171,9 @@ class MNIST_autoencoder_frozen(KerasModel):
 		encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='tanh', trainable = False), \
 			Dense(input_dim=392, output_dim=196, activation='tanh', trainable = False), \
 			Dense(input_dim=196, output_dim=98, activation = 'linear', trainable = False), GaussianNoise(4), Activation(activation='tanh')])
-		decoder2 = containers.Sequential([Dense(input_dim=98, output_dim=196, activation='tanh', Trainable = False), \
-			Dense(input_dim=196, output_dim=392, activation='tanh', Trainable = False), \
-			Dense(input_dim=392, output_dim=784, activation='softplus', Trainable = False)])
+		decoder2 = containers.Sequential([Dense(input_dim=98, output_dim=196, activation='tanh', trainable = False), \
+			Dense(input_dim=196, output_dim=392, activation='tanh', trainable = False), \
+			Dense(input_dim=392, output_dim=784, activation='softplus', trainable = False)])
 
 		# Dropout.  Not sure if I like it
 		#encoder2 = containers.Sequential([Dropout(0.9, input_shape=(784,)), Dense(input_dim=784, output_dim=392, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=392, output_dim=196, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=196, output_dim=98, activation='relu'), Dropout(0.8, input_shape=(98,)), GaussianNoise(1)])
