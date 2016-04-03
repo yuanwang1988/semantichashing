@@ -137,13 +137,13 @@ class MNIST_autoencoder(KerasModel):
 		ae = Sequential()
 
 		#encoder without noise
-		encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='tanh'), \
-			Dense(input_dim=392, output_dim=196, activation='tanh'), \
-			Dense(input_dim=196, output_dim=98, activation = 'linear'), Activation(activation='tanh')])
-		#encoder with noise
 		# encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='tanh'), \
 		# 	Dense(input_dim=392, output_dim=196, activation='tanh'), \
-		# 	Dense(input_dim=196, output_dim=98, activation = 'linear'), GaussianNoise(4), Activation(activation='tanh')])
+		# 	Dense(input_dim=196, output_dim=98, activation = 'linear'), Activation(activation='tanh')])
+		#encoder with noise
+		encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='tanh'), \
+			Dense(input_dim=392, output_dim=196, activation='tanh'), \
+			Dense(input_dim=196, output_dim=98, activation = 'linear'), GaussianNoise(4), Activation(activation='tanh')])
 		decoder2 = containers.Sequential([Dense(input_dim=98, output_dim=196, activation='tanh'), \
 			Dense(input_dim=196, output_dim=392, activation='tanh'), \
 			Dense(input_dim=392, output_dim=784, activation='softplus')])
@@ -212,17 +212,17 @@ mnist_autoencoder = MNIST_autoencoder()
 # print(dir(mnist_autoencoder.model.layers[0].encoder.layers[0]))
 # print(dir(mnist_autoencoder.model.layers[0].encoder.layers[1]))
 
-# print('============================')
-# print('Train Model:')
-# print('============================')
+print('============================')
+print('Train Model:')
+print('============================')
 
-#mnist_autoencoder.load('./mnist_models/keras_autoencoder')
+mnist_autoencoder.load('./mnist_models/keras_autoencoder')
 
 mnist_autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
-mnist_autoencoder.save('./mnist_models/keras_autoencoder')
-mnist_autoencoder.load('./mnist_models/keras_autoencoder')
+mnist_autoencoder.save('./mnist_models/keras_autoencoder_noise4')
+mnist_autoencoder.load('./mnist_models/keras_autoencoder_noise4')
 
 print('============================')
 print('Evaluate Model:')
