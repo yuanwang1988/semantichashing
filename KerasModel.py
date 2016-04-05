@@ -128,7 +128,14 @@ class KerasModel(object):
 
 		return hidden_activation
 
+def autoencoder_transfer_weights(src_model, target_model):
+	for k in xrange(len(src_model.model.layers[0].encoder.layers)):
+		weights = src_model.model.layers[0].encoder.layers[k].get_weights()
+		target_model.model.layers[0].encoder.layers[k].set_weights(weights)
 
+	for k in xrange(len(src_model.model.layers[0].decoder.layers)):
+		weights = src_model.model.layers[0].decoder.layers[k].get_weights()
+		target_model.model.layers[0].decoder.layers[k].set_weights(weights)
 
 
 
@@ -168,12 +175,20 @@ class MNIST_autoencoder_frozen(KerasModel):
 		# 	Dense(input_dim=392, output_dim=196, activation='tanh'), \
 		# 	Dense(input_dim=196, output_dim=98, activation = 'linear'), Activation(activation='tanh')])
 		#encoder with noise
-		encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='tanh', trainable = False), \
-			Dense(input_dim=392, output_dim=196, activation='tanh', trainable = False), \
-			Dense(input_dim=196, output_dim=98, activation = 'linear', trainable = False), GaussianNoise(4), Activation(activation='tanh')])
+		# encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='tanh'), \
+		# 	Dense(input_dim=392, output_dim=196, activation='tanh'), \
+		# 	Dense(input_dim=196, output_dim=98, activation = 'linear'), GaussianNoise(4), Activation(activation='tanh')])
 		decoder2 = containers.Sequential([Dense(input_dim=98, output_dim=196, activation='tanh', trainable = False), \
 			Dense(input_dim=196, output_dim=392, activation='tanh', trainable = False), \
 			Dense(input_dim=392, output_dim=784, activation='softplus', trainable = False)])
+
+		encoder2 = Sequential()
+		encoder2.add(Dense(input_dim=784, output_dim=392, activation='tanh', trainable = False))
+		encoder2.add(Dense(input_dim=392, output_dim=196, activation='tanh', trainable = False))
+		encoder2.add(Dense(input_dim=196, output_dim=98, activation = 'linear', trainable = True))
+		encoder2.add(GaussianNoise(4))
+		encoder2.add(Activation(activation='tanh'))
+
 
 		# Dropout.  Not sure if I like it
 		#encoder2 = containers.Sequential([Dropout(0.9, input_shape=(784,)), Dense(input_dim=784, output_dim=392, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=392, output_dim=196, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=196, output_dim=98, activation='relu'), Dropout(0.8, input_shape=(98,)), GaussianNoise(1)])
@@ -182,6 +197,8 @@ class MNIST_autoencoder_frozen(KerasModel):
 
 
 		ae.add(AutoEncoder(encoder=encoder2, decoder=decoder2, output_reconstruction=True))   #, tie_weights=True))
+
+		
 		ae.compile(loss='mean_squared_error', optimizer=RMSprop())
 
 		self.model = ae
@@ -208,7 +225,7 @@ from keras.layers.core import Dense, AutoEncoder, Dropout, Activation
 from keras.layers.noise import GaussianNoise
 from keras.optimizers import RMSprop, Adam
 from keras.utils import np_utils
-
+import h5py
 
 batch_size = 64
 nb_classes = 10
@@ -227,11 +244,11 @@ X_test = X_test.astype("float32") / 255.0
 print(X_train.shape[0], 'train samples')
 print(X_test.shape[0], 'test samples')
 
-# print('============================')
-# print('Initialize Model:')
-# print('============================')
+print('============================')
+print('Initialize Model:')
+print('============================')
 
-# mnist_autoencoder = MNIST_autoencoder()
+mnist_autoencoder = MNIST_autoencoder()
 
 # # print(dir(mnist_autoencoder))
 # # print(dir(mnist_autoencoder.model))
@@ -240,14 +257,14 @@ print(X_test.shape[0], 'test samples')
 # # print(dir(mnist_autoencoder.model.layers[0].encoder.layers[0]))
 # # print(dir(mnist_autoencoder.model.layers[0].encoder.layers[1]))
 
-# print('============================')
-# print('Train Model:')
-# print('============================')
+print('============================')
+print('Train Model:')
+print('============================')
 
-# mnist_autoencoder.load('./mnist_models/keras_autoencoder')
+mnist_autoencoder.load('./mnist_models/keras_autoencoder')
 
-# # mnist_autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
-# #        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
+# mnist_autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
+#        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
 # # mnist_autoencoder.save('./mnist_models/keras_autoencoder_noise4')
 # # mnist_autoencoder.load('./mnist_models/keras_autoencoder_noise4')
@@ -324,23 +341,73 @@ print('============================')
 print('Initialize Model:')
 print('============================')
 
-MNIST_autoencoder_frozen = MNIST_autoencoder_frozen()
-
-# print(dir(mnist_autoencoder))
-# print(dir(mnist_autoencoder.model))
-# print(dir(mnist_autoencoder.model.layers))
-# print(dir(mnist_autoencoder.model.layers[0]))
-# print(dir(mnist_autoencoder.model.layers[0].encoder.layers[0]))
-# print(dir(mnist_autoencoder.model.layers[0].encoder.layers[1]))
+mnist_autoencoder_frozen = MNIST_autoencoder_frozen()
 
 print('============================')
 print('Train Model:')
 print('============================')
 
-MNIST_autoencoder_frozen.load('./mnist_models/keras_autoencoder')
+#load weights from the trainable model:
+# for k in xrange(len(mnist_autoencoder.model.layers[0].encoder.layers)):
+# 	weights = mnist_autoencoder.model.layers[0].encoder.layers[k].get_weights()
+# 	MNIST_autoencoder_frozen.model.layers[0].encoder.layers[k].set_weights(weights)
 
-MNIST_autoencoder_frozen.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
+# for k in xrange(len(mnist_autoencoder.model.layers[0].decoder.layers)):
+# 	weights = mnist_autoencoder.model.layers[0].decoder.layers[k].get_weights()
+# 	MNIST_autoencoder_frozen.model.layers[0].decoder.layers[k].set_weights(weights)
+
+autoencoder_transfer_weights(mnist_autoencoder, mnist_autoencoder_frozen)
+
+mnist_autoencoder_frozen.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
-# mnist_autoencoder.save('./mnist_models/keras_autoencoder_noise4')
-# mnist_autoencoder.load('./mnist_models/keras_autoencoder_noise4')
+mnist_autoencoder_frozen.save('./mnist_models/keras_autoencoder_noise4_partial_freeze')
+mnist_autoencoder_frozen.load('./mnist_models/keras_autoencoder_noise4_partial_freeze')
+
+print('============================')
+print('Evaluate Model:')
+print('============================')
+
+score = mnist_autoencoder_frozen.evaluate(X_test, X_test)
+
+print('RMSE on validation set: {}'.format(score))
+
+# f = h5py.File('./mnist_models/keras_autoencoder')
+
+# print(f.attrs['nb_layers'])
+# print(f['layer_0'])
+# print(dir(f['layer_0']))
+# g = f['layer_0']
+
+# for p in range(g.attrs['nb_params']):
+# 	print(g['param_{}'.format(p)])
+
+# for k in range(f.attrs['nb_layers']):
+# 	if k >= len(mnist_autoencoder.model.layers):
+# 	# we don't look at the last (fully-connected) layers in the savefile
+# 		break
+
+# 	g = f['layer_{}'.format(k)]
+# 	weights = [g['param_{}'.format(p)] for p in range(g.attrs['nb_params'])]
+# 	mnist_autoencoder.model.layers[k].set_weights(weights)
+
+# print(dir(mnist_autoencoder.model.layers))
+# print(dir(mnist_autoencoder.model.layers[0]))
+# print(dir(mnist_autoencoder.model.layers[0].encoder.layers[0]))
+# print(dir(mnist_autoencoder.model.layers[0].encoder.layers[1]))
+
+
+# for k in range(f.attrs['nb_layers']):
+# 	if k >= len(MNIST.layers):
+# 	# we don't look at the last (fully-connected) layers in the savefile
+# 		break
+
+# 	g = f['layer_{}'.format(k)]
+# 	weights = [g['param_{}'.format(p)] for p in range(g.attrs['nb_params'])]
+# 	model.layers[k].set_weights(weights)
+# f.close()
+
+
+
+# # mnist_autoencoder.save('./mnist_models/keras_autoencoder_noise4')
+# # mnist_autoencoder.load('./mnist_models/keras_autoencoder_noise4')
