@@ -203,6 +203,24 @@ class MNIST_autoencoder_frozen(KerasModel):
 
 		self.model = ae
 
+	def load(self, model_file_path):
+		#initiate a trainable model to load the weights
+		ae_trainable = MNIST_autoencoder()
+
+		ae_trainable.load(model_file_path)
+
+		#transfer weights from the trainable model:
+		for k in xrange(len(ae_trainable.model.layers[0].encoder.layers)):
+			weights = ae_trainable.model.layers[0].encoder.layers[k].get_weights()
+			self.model.layers[0].encoder.layers[k].set_weights(weights)
+
+		for k in xrange(len(ae_trainable.model.layers[0].decoder.layers)):
+			weights = ae_trainable.model.layers[0].decoder.layers[k].get_weights()
+			self.model.layers[0].decoder.layers[k].set_weights(weights)
+
+
+
+
 
 ####################################
 #Testing:
@@ -356,7 +374,7 @@ print('============================')
 # 	weights = mnist_autoencoder.model.layers[0].decoder.layers[k].get_weights()
 # 	MNIST_autoencoder_frozen.model.layers[0].decoder.layers[k].set_weights(weights)
 
-autoencoder_transfer_weights(mnist_autoencoder, mnist_autoencoder_frozen)
+mnist_autoencoder_frozen.load('./mnist_models/keras_autoencoder')
 
 mnist_autoencoder_frozen.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
@@ -372,42 +390,47 @@ score = mnist_autoencoder_frozen.evaluate(X_test, X_test)
 
 print('RMSE on validation set: {}'.format(score))
 
-# f = h5py.File('./mnist_models/keras_autoencoder')
 
-# print(f.attrs['nb_layers'])
-# print(f['layer_0'])
-# print(dir(f['layer_0']))
-# g = f['layer_0']
+print('============================')
+print('Get Hidden Layer:')
+print('============================')
 
-# for p in range(g.attrs['nb_params']):
-# 	print(g['param_{}'.format(p)])
+print('Layer 1')
+hidden1 = mnist_autoencoder_frozen.get_autoencoder_layer(X_test, 1)
+print(hidden1.shape)
+print('------')
+print('Layer 2')
+hidden2 = mnist_autoencoder_frozen.get_autoencoder_layer(X_test, 2)
+print(hidden2.shape)
+print(hidden2[0:25])
+print('------')
 
-# for k in range(f.attrs['nb_layers']):
-# 	if k >= len(mnist_autoencoder.model.layers):
-# 	# we don't look at the last (fully-connected) layers in the savefile
-# 		break
+# the histogram of the data
+n, bins, patches = plt.hist(hidden2, 100, normed=1, facecolor='green', alpha=0.75)
 
-# 	g = f['layer_{}'.format(k)]
-# 	weights = [g['param_{}'.format(p)] for p in range(g.attrs['nb_params'])]
-# 	mnist_autoencoder.model.layers[k].set_weights(weights)
+plt.xlabel('Pre-activation')
+plt.ylabel('Probability')
+plt.title('Histogram of Pre-Activation at Top Layer - No Noise')
+#plt.axis([40, 160, 0, 0.03])
+plt.grid(True)
 
-# print(dir(mnist_autoencoder.model.layers))
-# print(dir(mnist_autoencoder.model.layers[0]))
-# print(dir(mnist_autoencoder.model.layers[0].encoder.layers[0]))
-# print(dir(mnist_autoencoder.model.layers[0].encoder.layers[1]))
+# for item in patches:
+#     item.set_height(item.get_height()/sum(n))
 
+plt.show()
 
-# for k in range(f.attrs['nb_layers']):
-# 	if k >= len(MNIST.layers):
-# 	# we don't look at the last (fully-connected) layers in the savefile
-# 		break
+hidden2_post_activation = sigmoid(hidden2)
 
-# 	g = f['layer_{}'.format(k)]
-# 	weights = [g['param_{}'.format(p)] for p in range(g.attrs['nb_params'])]
-# 	model.layers[k].set_weights(weights)
-# f.close()
+# the histogram of the data
+n, bins, patches = plt.hist(hidden2_post_activation, 100, normed=1, facecolor='green', alpha=0.75)
 
+plt.xlabel('Activation')
+plt.ylabel('Probability')
+plt.title('Histogram of Activation at Top Layer - No Noise')
+#plt.axis([40, 160, 0, 0.03])
+plt.grid(True)
 
+# for item in patches:
+#     item.set_height(item.get_height()/sum(n))
 
-# # mnist_autoencoder.save('./mnist_models/keras_autoencoder_noise4')
-# # mnist_autoencoder.load('./mnist_models/keras_autoencoder_noise4')
+plt.show()
