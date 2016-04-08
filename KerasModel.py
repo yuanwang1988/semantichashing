@@ -178,7 +178,7 @@ class MNIST_autoencoder_frozen(KerasModel):
 		# encoder2 = containers.Sequential([Dense(input_dim=784, output_dim=392, activation='tanh'), \
 		# 	Dense(input_dim=392, output_dim=196, activation='tanh'), \
 		# 	Dense(input_dim=196, output_dim=98, activation = 'linear'), GaussianNoise(4), Activation(activation='tanh')])
-		decoder2 = containers.Sequential([Dense(input_dim=98, output_dim=196, activation='tanh', trainable = False), \
+		decoder2 = containers.Sequential([Dense(input_dim=98, output_dim=196, activation='tanh', trainable = True), \
 			Dense(input_dim=196, output_dim=392, activation='tanh', trainable = False), \
 			Dense(input_dim=392, output_dim=784, activation='softplus', trainable = False)])
 
@@ -247,7 +247,7 @@ import h5py
 
 batch_size = 64
 nb_classes = 10
-nb_epoch = 150
+nb_epoch = 50
 
 print('============================')
 print('Pre-processing data:')
@@ -365,15 +365,6 @@ print('============================')
 print('Train Model:')
 print('============================')
 
-#load weights from the trainable model:
-# for k in xrange(len(mnist_autoencoder.model.layers[0].encoder.layers)):
-# 	weights = mnist_autoencoder.model.layers[0].encoder.layers[k].get_weights()
-# 	MNIST_autoencoder_frozen.model.layers[0].encoder.layers[k].set_weights(weights)
-
-# for k in xrange(len(mnist_autoencoder.model.layers[0].decoder.layers)):
-# 	weights = mnist_autoencoder.model.layers[0].decoder.layers[k].get_weights()
-# 	MNIST_autoencoder_frozen.model.layers[0].decoder.layers[k].set_weights(weights)
-
 mnist_autoencoder_frozen.load('./mnist_models/keras_autoencoder')
 
 mnist_autoencoder_frozen.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
@@ -389,6 +380,21 @@ print('============================')
 score = mnist_autoencoder_frozen.evaluate(X_test, X_test)
 
 print('RMSE on validation set: {}'.format(score))
+
+
+print('============================')
+print('Make Predictions:')
+print('============================')
+
+y_test2 = mnist_autoencoder_frozen.predict(X_test)
+
+for i in xrange(10):
+	y_test2 = y_test2.reshape((-1,28,28))
+	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
+	plt.show()
+
+	plt.imshow(y_test2[i,:,:], cmap=plt.get_cmap("gray"))
+	plt.show()
 
 
 print('============================')
