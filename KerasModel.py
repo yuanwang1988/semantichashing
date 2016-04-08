@@ -247,7 +247,7 @@ import h5py
 
 batch_size = 64
 nb_classes = 10
-nb_epoch = 50
+nb_epoch = 150
 
 print('============================')
 print('Pre-processing data:')
