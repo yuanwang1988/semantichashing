@@ -220,6 +220,15 @@ class MNIST_autoencoder_frozen(KerasModel):
 
 
 
+def get_cmap(N):
+    '''Returns a function that maps each index in 0, 1, ... N-1 to a distinct 
+    RGB color.'''
+    color_norm  = colors.Normalize(vmin=0, vmax=N-1)
+    scalar_map = cmx.ScalarMappable(norm=color_norm, cmap='hsv') 
+    def map_index_to_rgb_color(index):
+        return scalar_map.to_rgba(index)
+    return map_index_to_rgb_color
+
 
 
 ####################################
@@ -243,7 +252,13 @@ from keras.layers.core import Dense, AutoEncoder, Dropout, Activation
 from keras.layers.noise import GaussianNoise
 from keras.optimizers import RMSprop, Adam
 from keras.utils import np_utils
-import h5py
+from sklearn.manifold import TSNE
+
+#plotting related
+import matplotlib.pyplot as plt
+import matplotlib.cm as cmx
+import matplotlib.colors as colors
+
 
 batch_size = 64
 nb_classes = 10
@@ -254,7 +269,7 @@ print('Pre-processing data:')
 print('============================')
 
 # the data, shuffled and split between train and test sets
-(X_train, _), (X_test, _) = mnist.load_data()
+(X_train, y_train), (X_test, y_test) = mnist.load_data()
 X_train = X_train.reshape(-1, 784)
 X_test = X_test.reshape(-1, 784)
 X_train = X_train.astype("float32") / 255.0
@@ -287,13 +302,14 @@ mnist_autoencoder.load('./mnist_models/keras_autoencoder')
 # # mnist_autoencoder.save('./mnist_models/keras_autoencoder_noise4')
 # # mnist_autoencoder.load('./mnist_models/keras_autoencoder_noise4')
 
-# print('============================')
-# print('Evaluate Model:')
-# print('============================')
+print('============================')
+print('Evaluate Model:')
+print('============================')
 
-# score = mnist_autoencoder.evaluate(X_test, X_test)
+score = mnist_autoencoder.evaluate(X_test, X_test)
 
-# print('RMSE on validation set: {}'.format(score))
+print('RMSE on validation set: {}'.format(score))
+
 
 # # print('============================')
 # # print('Make Predictions:')
@@ -330,11 +346,7 @@ mnist_autoencoder.load('./mnist_models/keras_autoencoder')
 # plt.xlabel('Pre-activation')
 # plt.ylabel('Probability')
 # plt.title('Histogram of Pre-Activation at Top Layer - No Noise')
-# #plt.axis([40, 160, 0, 0.03])
 # plt.grid(True)
-
-# # for item in patches:
-# #     item.set_height(item.get_height()/sum(n))
 
 # plt.show()
 
@@ -346,14 +358,23 @@ mnist_autoencoder.load('./mnist_models/keras_autoencoder')
 # plt.xlabel('Activation')
 # plt.ylabel('Probability')
 # plt.title('Histogram of Activation at Top Layer - No Noise')
-# #plt.axis([40, 160, 0, 0.03])
 # plt.grid(True)
-
-# # for item in patches:
-# #     item.set_height(item.get_height()/sum(n))
 
 # plt.show()
 
+
+# cmap = get_cmap(10)
+# colour_array = []
+# for s in xrange(1000):
+# 	colour_array.append(cmap(y_test[s]))
+
+
+# tsne_model = TSNE(n_components=2, random_state=0)
+# np.set_printoptions(suppress=True)
+# tsne_vec = tsne_model.fit_transform(hidden2_post_activation[0:1000, :])
+
+# plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array)
+# plt.show()
 
 print('============================')
 print('Initialize Model:')
@@ -361,16 +382,16 @@ print('============================')
 
 mnist_autoencoder_frozen = MNIST_autoencoder_frozen()
 
-print('============================')
-print('Train Model:')
-print('============================')
+# print('============================')
+# print('Train Model:')
+# print('============================')
 
-mnist_autoencoder_frozen.load('./mnist_models/keras_autoencoder')
+# mnist_autoencoder_frozen.load('./mnist_models/keras_autoencoder')
 
-mnist_autoencoder_frozen.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
-       show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
+# mnist_autoencoder_frozen.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
+#        show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
-mnist_autoencoder_frozen.save('./mnist_models/keras_autoencoder_noise4_partial_freeze')
+# mnist_autoencoder_frozen.save('./mnist_models/keras_autoencoder_noise4_partial_freeze')
 mnist_autoencoder_frozen.load('./mnist_models/keras_autoencoder_noise4_partial_freeze')
 
 print('============================')
@@ -382,19 +403,19 @@ score = mnist_autoencoder_frozen.evaluate(X_test, X_test)
 print('RMSE on validation set: {}'.format(score))
 
 
-print('============================')
-print('Make Predictions:')
-print('============================')
+# print('============================')
+# print('Make Predictions:')
+# print('============================')
 
-y_test2 = mnist_autoencoder_frozen.predict(X_test)
+# y_test2 = mnist_autoencoder_frozen.predict(X_test)
 
-for i in xrange(10):
-	y_test2 = y_test2.reshape((-1,28,28))
-	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
-	plt.show()
+# for i in xrange(10):
+# 	y_test2 = y_test2.reshape((-1,28,28))
+# 	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
+# 	plt.show()
 
-	plt.imshow(y_test2[i,:,:], cmap=plt.get_cmap("gray"))
-	plt.show()
+# 	plt.imshow(y_test2[i,:,:], cmap=plt.get_cmap("gray"))
+# 	plt.show()
 
 
 print('============================')
@@ -416,12 +437,8 @@ n, bins, patches = plt.hist(hidden2, 100, normed=1, facecolor='green', alpha=0.7
 
 plt.xlabel('Pre-activation')
 plt.ylabel('Probability')
-plt.title('Histogram of Pre-Activation at Top Layer - No Noise')
-#plt.axis([40, 160, 0, 0.03])
+plt.title('Histogram of Pre-Activation at Top Layer - Gaussian Noise (STD = 4)')
 plt.grid(True)
-
-# for item in patches:
-#     item.set_height(item.get_height()/sum(n))
 
 plt.show()
 
@@ -432,11 +449,20 @@ n, bins, patches = plt.hist(hidden2_post_activation, 100, normed=1, facecolor='g
 
 plt.xlabel('Activation')
 plt.ylabel('Probability')
-plt.title('Histogram of Activation at Top Layer - No Noise')
-#plt.axis([40, 160, 0, 0.03])
+plt.title('Histogram of Activation at Top Layer - Gaussian Noise (STD=4)')
 plt.grid(True)
 
-# for item in patches:
-#     item.set_height(item.get_height()/sum(n))
+plt.show()
 
+cmap = get_cmap(10)
+colour_array = []
+for s in xrange(1000):
+	colour_array.append(cmap(y_test[s]))
+
+
+tsne_model = TSNE(n_components=2, random_state=0)
+np.set_printoptions(suppress=True)
+tsne_vec = tsne_model.fit_transform(hidden2_post_activation[0:1000, :])
+
+plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array)
 plt.show()
