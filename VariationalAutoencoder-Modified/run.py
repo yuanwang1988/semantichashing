@@ -1,3 +1,7 @@
+import sys
+sys.path.append('../')
+
+
 import numpy as np
 import time
 import os
@@ -11,6 +15,9 @@ from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import matplotlib.cm as cmx
 import matplotlib.colors as colors
+
+#custom functions
+from hammingHashTable import hammingHashTable, linearLookupTable
 
 def sigmoid(x):
   return 1 / (1 + np.exp(-x))
@@ -93,6 +100,7 @@ if __name__ == "__main__":
 
     z_test = model.encode(x_test)
     z_mu_test = model.encode_mu(x_test)
+    z_test_post_activation = sigmoid(z_test)
     #z_sigma_test = model.encode_log_sigma(x_test)
     print 'Validation set X shape - 5 samples: {}'.format(x_test.shape)
     print 'Validation set X shape - 5 samples: {}'.format(z_mu_test.shape)
@@ -116,100 +124,185 @@ if __name__ == "__main__":
         plt.imshow(x_recon[i,:,:], cmap=plt.get_cmap("gray"))
         plt.show()
 
-# the histogram of the data
-    hidden2 = z_test
+    # print('============================')
+    # print('Visualize Latents:')
+    # print('============================')
 
-    n, bins, patches = plt.hist(hidden2, 100, normed=1, facecolor='green', alpha=0.75)
+# # the histogram of the data
+#     hidden2 = z_test
 
-    plt.xlabel('Pre-activation')
-    plt.ylabel('Probability')
-    plt.title('Histogram of Z - Prior Noise 4')
-    plt.grid(True)
+#     n, bins, patches = plt.hist(hidden2, 100, normed=1, facecolor='green', alpha=0.75)
 
+#     plt.xlabel('Pre-activation')
+#     plt.ylabel('Probability')
+#     plt.title('Histogram of Z - Prior Noise 4')
+#     plt.grid(True)
+
+#     plt.show()
+
+#     hidden2_post_activation = sigmoid(hidden2)
+
+#     # the histogram of the data
+
+#     n, bins, patches = plt.hist(hidden2_post_activation, 100, normed=1, facecolor='green', alpha=0.75)
+
+#     plt.xlabel('Pre-activation')
+#     plt.ylabel('Probability')
+#     plt.title('Histogram of sigmoid(Z) - Prior Noise 4')
+#     plt.grid(True)
+
+#     plt.show()
+
+
+#     # the histogram of the data
+#     hidden2 = z_mu_test
+
+#     n, bins, patches = plt.hist(hidden2, 100, normed=1, facecolor='green', alpha=0.75)
+
+#     plt.xlabel('Pre-activation')
+#     plt.ylabel('Probability')
+#     plt.title('Histogram of Mu - Prior Noise 4')
+#     plt.grid(True)
+
+#     plt.show()
+
+#     hidden2_post_activation = sigmoid(hidden2)
+
+#     # the histogram of the data
+
+#     n, bins, patches = plt.hist(hidden2_post_activation, 100, normed=1, facecolor='green', alpha=0.75)
+
+#     plt.xlabel('Pre-activation')
+#     plt.ylabel('Probability')
+#     plt.title('Histogram of sigmoid(Mu) - Prior Noise 4')
+#     plt.grid(True)
+
+#     plt.show()
+
+#     # the histogram of the data
+#     n, bins, patches = plt.hist(z_sigma_test, 100, normed=1, facecolor='green', alpha=0.75)
+
+#     plt.xlabel('Activation')
+#     plt.ylabel('Probability')
+#     plt.title('Histogram of Log sigmas- Prior Noise 4')
+#     plt.grid(True)
+
+#     plt.show()
+
+#     cmap = get_cmap(10)
+#     colour_array = []
+#     for s in xrange(1000):
+#         colour_array.append(cmap(t_test[s]))
+
+
+#     #tsne based on mean
+
+#     tsne_model = TSNE(n_components=2, random_state=0)
+#     np.set_printoptions(suppress=True)
+#     tsne_vec = tsne_model.fit_transform(z_mu_test[0:1000, :])
+
+#     plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array)
+#     plt.show()
+
+
+#     #tsne based on variance
+
+#     tsne_model = TSNE(n_components=2, random_state=0)
+#     np.set_printoptions(suppress=True)
+#     tsne_vec = tsne_model.fit_transform(z_sigma_test[0:1000, :])
+
+#     plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array)
+#     plt.show()
+
+
+#     #tsne based on combined
+
+#     hidden_complete = np.hstack((z_mu_test, z_sigma_test))
+
+#     tsne_model = TSNE(n_components=2, random_state=0)
+#     np.set_printoptions(suppress=True)
+#     tsne_vec = tsne_model.fit_transform(hidden2_post_activation[0:1000, :])
+
+#     plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array)
+#     plt.show()
+
+    print('============================')
+    print('Hash Lookup:')
+    print('============================')
+
+    y_test = t_test
+    X_test = x_test
+    z_test = z_test_post_activation
+    
+    y_test_freqs= np.bincount(y_test)
+    ii = np.nonzero(y_test_freqs)[0]
+
+    print(zip(ii, y_test_freqs[ii]))
+
+    idx_array = np.zeros((z_test.shape[0], 1))
+    for i in xrange(z_test.shape[0]):
+        idx_array[i,0] = i
+
+    # myTable = hammingHashTable(z_test, X_test)
+    # myTable2 = hammingHashTable(z_test, idx_array)
+
+
+    myTable = linearLookupTable(z_test, X_test)
+    myTable2 = linearLookupTable(z_test, idx_array)
+
+
+    #choose index of the test example
+    i = 652 #652 is one of the few samples that have close by neighbours
+
+    plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
     plt.show()
 
-    hidden2_post_activation = sigmoid(hidden2)
+    lookup_z = z_test[i,:]
 
-    # the histogram of the data
+    print('hamming distance of 1')
+    resultX, resultZ = myTable.lookup(lookup_z, 1)
+    resultIdx, _resultZ = myTable2.lookup(lookup_z, 1)
 
-    n, bins, patches = plt.hist(hidden2_post_activation, 100, normed=1, facecolor='green', alpha=0.75)
+    print('Shape of results: {}'.format(resultX.shape))
+    for j in xrange(resultX.shape[0]):
+        print('Latent Z: {}'.format(resultZ[j,:]))
+        print('Index: {}'.format(resultIdx[j]))
+        fig = plt.figure()
+        plt.imshow(resultX[j,:].reshape((28,28)), cmap=plt.get_cmap("gray"))
+        plt.draw()
+        plt.pause(1) # <-------
+        raw_input("<Hit Enter To Close>")
+        plt.close(fig)
+        print('-------')
 
-    plt.xlabel('Pre-activation')
-    plt.ylabel('Probability')
-    plt.title('Histogram of sigmoid(Z) - Prior Noise 4')
-    plt.grid(True)
+    print('hamming distance of 2')
+    resultX, resultZ = myTable.lookup(lookup_z, 2)
+    resultIdx, _resultZ = myTable2.lookup(lookup_z, 2)
 
-    plt.show()
+    print('Shape of results: {}'.format(resultX.shape))
+    for j in xrange(resultX.shape[0]):
+        print('Latent Z: {}'.format(resultZ[j,:]))
+        print('Index: {}'.format(resultIdx[j]))
+        fig = plt.figure()
+        plt.imshow(resultX[j,:].reshape((28,28)), cmap=plt.get_cmap("gray"))
+        plt.draw()
+        plt.pause(1) # <-------
+        raw_input("<Hit Enter To Close>")
+        plt.close(fig)
+        print('-------')
 
+    print('hamming distance of 3')
+    resultX, resultZ = myTable.lookup(lookup_z, 3)
+    resultIdx, _resultZ = myTable2.lookup(lookup_z, 3)
 
-    # the histogram of the data
-    hidden2 = z_mu_test
-
-    n, bins, patches = plt.hist(hidden2, 100, normed=1, facecolor='green', alpha=0.75)
-
-    plt.xlabel('Pre-activation')
-    plt.ylabel('Probability')
-    plt.title('Histogram of Mu - Prior Noise 4')
-    plt.grid(True)
-
-    plt.show()
-
-    hidden2_post_activation = sigmoid(hidden2)
-
-    # the histogram of the data
-
-    n, bins, patches = plt.hist(hidden2_post_activation, 100, normed=1, facecolor='green', alpha=0.75)
-
-    plt.xlabel('Pre-activation')
-    plt.ylabel('Probability')
-    plt.title('Histogram of sigmoid(Mu) - Prior Noise 4')
-    plt.grid(True)
-
-    plt.show()
-
-    # the histogram of the data
-    n, bins, patches = plt.hist(z_sigma_test, 100, normed=1, facecolor='green', alpha=0.75)
-
-    plt.xlabel('Activation')
-    plt.ylabel('Probability')
-    plt.title('Histogram of Log sigmas- Prior Noise 4')
-    plt.grid(True)
-
-    plt.show()
-
-    cmap = get_cmap(10)
-    colour_array = []
-    for s in xrange(1000):
-        colour_array.append(cmap(t_test[s]))
-
-
-    #tsne based on mean
-
-    tsne_model = TSNE(n_components=2, random_state=0)
-    np.set_printoptions(suppress=True)
-    tsne_vec = tsne_model.fit_transform(z_mu_test[0:1000, :])
-
-    plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array)
-    plt.show()
-
-
-    #tsne based on variance
-
-    tsne_model = TSNE(n_components=2, random_state=0)
-    np.set_printoptions(suppress=True)
-    tsne_vec = tsne_model.fit_transform(z_sigma_test[0:1000, :])
-
-    plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array)
-    plt.show()
-
-
-    #tsne based on combined
-
-    hidden_complete = np.hstack((z_mu_test, z_sigma_test))
-
-    tsne_model = TSNE(n_components=2, random_state=0)
-    np.set_printoptions(suppress=True)
-    tsne_vec = tsne_model.fit_transform(hidden2_post_activation[0:1000, :])
-
-    plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array)
-    plt.show()
+    print('Shape of results: {}'.format(resultX.shape))
+    for j in xrange(resultX.shape[0]):
+        print('Latent Z: {}'.format(resultZ[j,:]))
+        print('Index: {}'.format(resultIdx[j]))
+        fig = plt.figure()
+        plt.imshow(resultX[j,:].reshape((28,28)), cmap=plt.get_cmap("gray"))
+        plt.draw()
+        plt.pause(1) # <-------
+        raw_input("<Hit Enter To Close>")
+        plt.close(fig)
+        print('-------')

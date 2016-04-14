@@ -153,35 +153,35 @@ def kbits(n, k):
 
 
 
+if __name__ == "__main__":
+	print 'tests'
 
-print 'tests'
+	print kbits(4, 3)
 
-print kbits(4, 3)
+	print hamming_ball(np.array([1, 0, 1, 0], dtype=bool), 2)
 
-print hamming_ball(np.array([1, 0, 1, 0], dtype=bool), 2)
+	print 'testing:'
 
-print 'testing:'
+	X = np.array([[1],[2],[3],[4]])
+	Z = np.array([[1,0,0], [0,1,0], [0,0,1], [1,0,1]], dtype=bool)
 
-X = np.array([[1],[2],[3],[4]])
-Z = np.array([[1,0,0], [0,1,0], [0,0,1], [1,0,1]], dtype=bool)
+	myTable = hammingHashTable(Z,X)
 
-myTable = hammingHashTable(Z,X)
-
-lookup_z = np.array([0,1,0], dtype=bool)
-print 'hamming d = 0'
-print myTable.lookup(lookup_z,0)
-print 'hamming d = 1'
-print myTable.lookup(lookup_z,1)
-print 'hamming d = 2'
-print myTable.lookup(lookup_z,2)
+	lookup_z = np.array([0,1,0], dtype=bool)
+	print 'hamming d = 0'
+	print myTable.lookup(lookup_z,0)
+	print 'hamming d = 1'
+	print myTable.lookup(lookup_z,1)
+	print 'hamming d = 2'
+	print myTable.lookup(lookup_z,2)
 
 
-myTable = linearLookupTable(Z,X)
+	myTable = linearLookupTable(Z,X)
 
-lookup_z = np.array([0,1,0], dtype=bool)
-print 'hamming d = 0'
-print myTable.lookup(lookup_z,0)
-print 'hamming d = 1'
-print myTable.lookup(lookup_z,1)
-print 'hamming d = 2'
-print myTable.lookup(lookup_z,2)
+	lookup_z = np.array([0,1,0], dtype=bool)
+	print 'hamming d = 0'
+	print myTable.lookup(lookup_z,0)
+	print 'hamming d = 1'
+	print myTable.lookup(lookup_z,1)
+	print 'hamming d = 2'
+	print myTable.lookup(lookup_z,2)
