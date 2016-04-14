@@ -86,11 +86,41 @@ class binaryHashTable(object):
 		key = np.array_str(key)
 		return key in self.data_dic
 
+
+class linearLookupTable(object):
+	def __init__(self, Z = None, X = None):
+		if Z == None and X == None:
+			self.dataZ = np.array([], dtype=bool)
+			self.dataX = np.array([])
+		elif Z != None and X != None:
+			Z = binarize(Z)
+			self.dataZ = Z
+			self.dataX = X
+		else:
+			print 'Error! X and Z do not match'
+
+	def add(self, Z, X):
+		Z = binarize(Z)
+		self.dataZ = np.vstack(self.dataZ, key)
+		self.dataX = np.vstack(self.dataX, val)
+
+	def lookup(self, key, hamming_distance):
+		key = binarize(key)
+		resultIdx = np.sum(np.bitwise_xor(self.dataZ, key), axis=1) == hamming_distance
+		resultZ = self.dataZ[resultIdx, :]
+		resultX = self.dataX[resultIdx, :]
+
+		return resultX, resultZ
+
+
+
+
+
 def binarize(x):
 	'''Takes an numpy array with values between 0 and 1 and returns 
 	a numpy array of values rounded to {0,1}'''
 
-	return np.array(x > 0.5, dtype=int);
+	return np.array(x > 0.5, dtype=bool);
 
 def hamming_ball(x, hamming_distance):
 	'''	a numpy array of binary values and return 
@@ -99,7 +129,7 @@ def hamming_ball(x, hamming_distance):
 
 	n = len(x)
 
-	hamming_ball_size = comb(n, hamming_distance)
+	#hamming_ball_size = comb(n, hamming_distance)
 
 	#result = np.zeros((hamming_ball_size, n))
 
@@ -111,10 +141,10 @@ def hamming_ball(x, hamming_distance):
 
 
 def kbits(n, k):
-    result = np.zeros((comb(n,k), n), dtype=int)
+    result = np.zeros((comb(n,k), n), dtype=bool)
     idx = 0
     for bits in itertools.combinations(range(n), k):
-        s = np.zeros(n, dtype=int)
+        s = np.zeros(n, dtype=bool)
         for bit in bits:
             s[bit] = 1
         result[idx,:] = s
@@ -124,23 +154,34 @@ def kbits(n, k):
 
 
 
-# print 'tests'
+print 'tests'
 
-# print kbits(4, 3)
+print kbits(4, 3)
 
-# print hamming_ball(np.array([1, 0, 1, 0], dtype=int), 2)
+print hamming_ball(np.array([1, 0, 1, 0], dtype=bool), 2)
 
-# print 'testing:'
+print 'testing:'
 
-# X = np.array([[1],[2],[3],[4]])
-# Z = np.array([[1,0,0], [0,1,0], [0,0,1], [1,0,1]], dtype=int)
+X = np.array([[1],[2],[3],[4]])
+Z = np.array([[1,0,0], [0,1,0], [0,0,1], [1,0,1]], dtype=bool)
 
-# myTable = semanticHashTable(Z,X)
+myTable = hammingHashTable(Z,X)
 
-# lookup_z = np.array([0,1,0], dtype=int)
-# print 'hamming d = 0'
-# print myTable.lookup(lookup_z,0)
-# print 'hamming d = 1'
-# print myTable.lookup(lookup_z,1)
-# print 'hamming d = 2'
-# print myTable.lookup(lookup_z,2)
+lookup_z = np.array([0,1,0], dtype=bool)
+print 'hamming d = 0'
+print myTable.lookup(lookup_z,0)
+print 'hamming d = 1'
+print myTable.lookup(lookup_z,1)
+print 'hamming d = 2'
+print myTable.lookup(lookup_z,2)
+
+
+myTable = linearLookupTable(Z,X)
+
+lookup_z = np.array([0,1,0], dtype=bool)
+print 'hamming d = 0'
+print myTable.lookup(lookup_z,0)
+print 'hamming d = 1'
+print myTable.lookup(lookup_z,1)
+print 'hamming d = 2'
+print myTable.lookup(lookup_z,2)

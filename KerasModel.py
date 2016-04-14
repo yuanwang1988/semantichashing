@@ -3,7 +3,7 @@ from __future__ import print_function
 import numpy as np
 import theano
 from utils import sigmoid, get_cmap
-from hammingHashTable import hammingHashTable
+from hammingHashTable import hammingHashTable, linearLookupTable
 
 
 class KerasModel(object):
@@ -479,8 +479,12 @@ idx_array = np.zeros((hidden2_post_activation.shape[0], 1))
 for i in xrange(hidden2_post_activation.shape[0]):
 	idx_array[i,0] = i
 
-myTable = hammingHashTable(hidden2_post_activation, X_test)
-myTable2 = hammingHashTable(hidden2_post_activation, idx_array)
+# myTable = hammingHashTable(hidden2_post_activation, X_test)
+# myTable2 = hammingHashTable(hidden2_post_activation, idx_array)
+
+
+myTable = linearLookupTable(hidden2_post_activation, X_test)
+myTable2 = linearLookupTable(hidden2_post_activation, idx_array)
 
 
 #choose index of the test example
@@ -510,6 +514,22 @@ for j in xrange(resultX.shape[0]):
 print('hamming distance of 2')
 resultX, resultZ = myTable.lookup(lookup_z, 2)
 resultIdx, _resultZ = myTable2.lookup(lookup_z, 2)
+
+print('Shape of results: {}'.format(resultX.shape))
+for j in xrange(resultX.shape[0]):
+	print('Latent Z: {}'.format(resultZ[j,:]))
+	print('Index: {}'.format(resultIdx[j]))
+	fig = plt.figure()
+	plt.imshow(resultX[j,:].reshape((28,28)), cmap=plt.get_cmap("gray"))
+	plt.draw()
+	plt.pause(1) # <-------
+	raw_input("<Hit Enter To Close>")
+	plt.close(fig)
+	print('-------')
+
+print('hamming distance of 3')
+resultX, resultZ = myTable.lookup(lookup_z, 3)
+resultIdx, _resultZ = myTable2.lookup(lookup_z, 3)
 
 print('Shape of results: {}'.format(resultX.shape))
 for j in xrange(resultX.shape[0]):
