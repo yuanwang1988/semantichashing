@@ -2,10 +2,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 import numpy as np
 import theano
-
-
-def sigmoid(x):
-  return 1 / (1 + np.exp(-x))
+from utils import sigmoid, get_cmap
+from hammingHashTable import hammingHashTable
 
 
 class KerasModel(object):
@@ -220,16 +218,6 @@ class MNIST_autoencoder_frozen(KerasModel):
 
 
 
-def get_cmap(N):
-    '''Returns a function that maps each index in 0, 1, ... N-1 to a distinct 
-    RGB color.'''
-    color_norm  = colors.Normalize(vmin=0, vmax=N-1)
-    scalar_map = cmx.ScalarMappable(norm=color_norm, cmap='hsv') 
-    def map_index_to_rgb_color(index):
-        return scalar_map.to_rgba(index)
-    return map_index_to_rgb_color
-
-
 
 ####################################
 #Testing:
@@ -432,37 +420,105 @@ print(hidden2.shape)
 print(hidden2[0:25])
 print('------')
 
-# the histogram of the data
-n, bins, patches = plt.hist(hidden2, 100, normed=1, facecolor='green', alpha=0.75)
-
-plt.xlabel('Pre-activation')
-plt.ylabel('Probability')
-plt.title('Histogram of Pre-Activation at Top Layer - Gaussian Noise (STD = 4)')
-plt.grid(True)
-
-plt.show()
-
 hidden2_post_activation = sigmoid(hidden2)
 
-# the histogram of the data
-n, bins, patches = plt.hist(hidden2_post_activation, 100, normed=1, facecolor='green', alpha=0.75)
+# # the histogram of the data
+# n, bins, patches = plt.hist(hidden2, 100, normed=1, facecolor='green', alpha=0.75)
 
-plt.xlabel('Activation')
-plt.ylabel('Probability')
-plt.title('Histogram of Activation at Top Layer - Gaussian Noise (STD=4)')
-plt.grid(True)
+# plt.xlabel('Pre-activation')
+# plt.ylabel('Probability')
+# plt.title('Histogram of Pre-Activation at Top Layer - Gaussian Noise (STD = 4)')
+# plt.grid(True)
 
+# plt.show()
+
+# # the histogram of the data
+# n, bins, patches = plt.hist(hidden2_post_activation, 100, normed=1, facecolor='green', alpha=0.75)
+
+# plt.xlabel('Activation')
+# plt.ylabel('Probability')
+# plt.title('Histogram of Activation at Top Layer - Gaussian Noise (STD=4)')
+# plt.grid(True)
+
+# plt.show()
+
+# cmap = get_cmap(10)
+# colour_array = []
+# for s in xrange(1000):
+# 	colour_array.append(cmap(y_test[s]))
+
+
+# tsne_model = TSNE(n_components=2, random_state=0)
+# np.set_printoptions(suppress=True)
+# tsne_vec = tsne_model.fit_transform(hidden2_post_activation[0:1000, :])
+
+# plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array)
+# plt.show()
+
+
+# cmap = get_cmap(10)
+# colour_array = []
+# idx_array = np.zeros((10,1))
+# for s in xrange(10):
+# 	idx_array[s,0] = s+1
+# 	colour_array.append(cmap(s+1))
+
+# plt.scatter(idx_array[:,0], idx_array[:,0], color=colour_array)
+# plt.show()
+
+print('============================')
+print('Hash Lookup:')
+print('============================')
+
+y_test_freqs= np.bincount(y_test)
+ii = np.nonzero(y_test_freqs)[0]
+
+print(zip(ii, y_test_freqs[ii]))
+
+idx_array = np.zeros((hidden2_post_activation.shape[0], 1))
+for i in xrange(hidden2_post_activation.shape[0]):
+	idx_array[i,0] = i
+
+myTable = hammingHashTable(hidden2_post_activation, X_test)
+myTable2 = hammingHashTable(hidden2_post_activation, idx_array)
+
+
+#choose index of the test example
+i = 652 #652 is one of the few samples that have close by neighbours
+
+plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
 plt.show()
 
-cmap = get_cmap(10)
-colour_array = []
-for s in xrange(1000):
-	colour_array.append(cmap(y_test[s]))
+lookup_z = hidden2_post_activation[i,:]
 
+print('hamming distance of 1')
+resultX, resultZ = myTable.lookup(lookup_z, 1)
+resultIdx, _resultZ = myTable2.lookup(lookup_z, 1)
 
-tsne_model = TSNE(n_components=2, random_state=0)
-np.set_printoptions(suppress=True)
-tsne_vec = tsne_model.fit_transform(hidden2_post_activation[0:1000, :])
+print('Shape of results: {}'.format(resultX.shape))
+for j in xrange(resultX.shape[0]):
+	print('Latent Z: {}'.format(resultZ[j,:]))
+	print('Index: {}'.format(resultIdx[j]))
+	fig = plt.figure()
+	plt.imshow(resultX[j,:].reshape((28,28)), cmap=plt.get_cmap("gray"))
+	plt.draw()
+	plt.pause(1) # <-------
+	raw_input("<Hit Enter To Close>")
+	plt.close(fig)
+	print('-------')
 
-plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array)
-plt.show()
+print('hamming distance of 2')
+resultX, resultZ = myTable.lookup(lookup_z, 2)
+resultIdx, _resultZ = myTable2.lookup(lookup_z, 2)
+
+print('Shape of results: {}'.format(resultX.shape))
+for j in xrange(resultX.shape[0]):
+	print('Latent Z: {}'.format(resultZ[j,:]))
+	print('Index: {}'.format(resultIdx[j]))
+	fig = plt.figure()
+	plt.imshow(resultX[j,:].reshape((28,28)), cmap=plt.get_cmap("gray"))
+	plt.draw()
+	plt.pause(1) # <-------
+	raw_input("<Hit Enter To Close>")
+	plt.close(fig)
+	print('-------')
