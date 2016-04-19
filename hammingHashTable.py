@@ -2,6 +2,37 @@ import numpy as np
 from scipy.special import comb
 import itertools
 
+
+#########################################
+# Public Functions:						#
+#########################################
+
+class linearLookupTable(object):
+	def __init__(self, Z = None, X = None):
+		if Z == None and X == None:
+			self.dataZ = np.array([], dtype=bool)
+			self.dataX = np.array([])
+		elif Z != None and X != None:
+			Z = binarize(Z)
+			self.dataZ = Z
+			self.dataX = X
+		else:
+			print 'Error! X and Z do not match'
+
+	def add(self, Z, X):
+		Z = binarize(Z)
+		self.dataZ = np.vstack(self.dataZ, key)
+		self.dataX = np.vstack(self.dataX, val)
+
+	def lookup(self, key, hamming_distance):
+		key = binarize(key)
+		resultIdx = np.sum(np.bitwise_xor(self.dataZ, key), axis=1) == hamming_distance
+		resultZ = self.dataZ[resultIdx, :]
+		resultX = self.dataX[resultIdx, :]
+
+		return resultX, resultZ
+
+
 class hammingHashTable(object):
 	def __init__(self, Z, X):
 		'''
@@ -62,6 +93,11 @@ class hammingHashTable(object):
 		return resultX, resultZ
 
 
+#########################################
+# Helper Functions:						#
+#########################################
+
+
 class binaryHashTable(object):
 	def __init__(self):
 		self.data_dic = {}
@@ -85,35 +121,6 @@ class binaryHashTable(object):
 	def contains(self, key):
 		key = np.array_str(key)
 		return key in self.data_dic
-
-
-class linearLookupTable(object):
-	def __init__(self, Z = None, X = None):
-		if Z == None and X == None:
-			self.dataZ = np.array([], dtype=bool)
-			self.dataX = np.array([])
-		elif Z != None and X != None:
-			Z = binarize(Z)
-			self.dataZ = Z
-			self.dataX = X
-		else:
-			print 'Error! X and Z do not match'
-
-	def add(self, Z, X):
-		Z = binarize(Z)
-		self.dataZ = np.vstack(self.dataZ, key)
-		self.dataX = np.vstack(self.dataX, val)
-
-	def lookup(self, key, hamming_distance):
-		key = binarize(key)
-		resultIdx = np.sum(np.bitwise_xor(self.dataZ, key), axis=1) == hamming_distance
-		resultZ = self.dataZ[resultIdx, :]
-		resultX = self.dataX[resultIdx, :]
-
-		return resultX, resultZ
-
-
-
 
 
 def binarize(x):

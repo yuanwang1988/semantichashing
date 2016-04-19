@@ -233,7 +233,7 @@ if __name__ == "__main__":
     y_test = t_test
     X_test = x_test
     z_test = z_test_post_activation
-    
+
     y_test_freqs= np.bincount(y_test)
     ii = np.nonzero(y_test_freqs)[0]
 
@@ -252,7 +252,7 @@ if __name__ == "__main__":
 
 
     #choose index of the test example
-    i = 652 #652 is one of the few samples that have close by neighbours
+    i = 0 #652 is one of the few samples that have close by neighbours
 
     plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
     plt.show()
