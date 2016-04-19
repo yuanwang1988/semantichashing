@@ -31,7 +31,7 @@ from KerasModel import MNIST_autoencoder_784_392_196_98_49_tanh
 
 batch_size = 256
 nb_classes = 10
-nb_epoch = 150
+nb_epoch = 20
 
 print('============================')
 print('Pre-processing data:')
