@@ -72,7 +72,7 @@ if __name__ == "__main__":
 	# settings
 	batch_size = 256
 	nb_classes = 10
-	nb_epoch = 1
+	nb_epoch = 1000
 
 	print('============================')
 	print('Pre-processing data:')
