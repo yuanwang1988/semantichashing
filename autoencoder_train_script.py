@@ -25,133 +25,42 @@ import matplotlib.colors as colors
 
 
 #import models
-from KerasModel import MNIST_autoencoder_784_392_196_98_49_tanh, \
-MNIST_autoencoder_784_392_196_98_49_24_tanh
+from KerasModel import \
+MNIST_autoencoder_784_392_196_98_tanh,\
+MNIST_autoencoder_784_392_196_98_49_tanh, \
+MNIST_autoencoder_784_392_196_98_49_24_tanh, \
+MNIST_autoencoder_784_392_196_98_49_20_tanh, \
+MNIST_autoencoder_784_392_196_98_49_24_12_tanh, \
+MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh
 
 
-
-def train_autoencoder_784_392_196_98_49_tanh():
+def train_autoencoder(autoencoder_name, noise_flag=False):
 	print('============================')
-	print('Pre-processing data:')
-	print('============================')
-
-	print('============================')
-	print('Initialize Model: MNIST_autoencoder_784_392_196_98_49_tanh')
-	print('============================')
-
-	mnist_autoencoder_784_392_196_98_49_tanh = MNIST_autoencoder_784_392_196_98_49_tanh(noise_flag = False)
-
-
-	print('============================')
-	print('Train Model:')
+	print('Initialize Model: {}_noise={}'.format(autoencoder_name, noise_flag))
 	print('============================')
 
-	mnist_autoencoder_784_392_196_98_49_tanh.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
-	       show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
-	mnist_autoencoder_784_392_196_98_49_tanh.save('./mnist_models/mnist_autoencoder_784_392_196_98_49_tanh')
-	mnist_autoencoder_784_392_196_98_49_tanh.load('./mnist_models/mnist_autoencoder_784_392_196_98_49_tanh')
-
-	print('============================')
-	print('Evaluate Model:')
-	print('============================')
-
-	score = mnist_autoencoder_784_392_196_98_49_tanh.evaluate(X_test, X_test)
-
-	print('RMSE on validation set: {}'.format(score))
-
-	print('################################################################################################################')
-	print('################################################################################################################')
-
-
-def train_autoencoder_784_392_196_98_49_tanh_noisy():
-	print('============================')
-	print('Initialize Model: MNIST_autoencoder_784_392_196_98_49_tanh_noisy')
-	print('============================')
-
-	mnist_autoencoder_784_392_196_98_49_tanh_noisy = MNIST_autoencoder_784_392_196_98_49_tanh(noise_flag = True)
+	autoencoder=eval('{}(noise_flag={})'.format(autoencoder_name, noise_flag))
 
 
 	print('============================')
 	print('Train Model:')
 	print('============================')
 
-	mnist_autoencoder_784_392_196_98_49_tanh_noisy.load('./mnist_models/mnist_autoencoder_784_392_196_98_49_tanh')
+	if noise_flag:
+		autoencoder.load('./mnist_models/{}_{}'.format(autoencoder_name, False))
 
-	mnist_autoencoder_784_392_196_98_49_tanh_noisy.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
+	autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
 	       show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
-	mnist_autoencoder_784_392_196_98_49_tanh_noisy.save('./mnist_models/mnist_autoencoder_784_392_196_98_49_tanh_noisy')
-	mnist_autoencoder_784_392_196_98_49_tanh_noisy.load('./mnist_models/mnist_autoencoder_784_392_196_98_49_tanh_noisy')
+	autoencoder.save('./mnist_models/{}_{}'.format(autoencoder_name, noise_flag))
+	autoencoder.load('./mnist_models/{}_{}'.format(autoencoder_name, noise_flag))
 
 	print('============================')
 	print('Evaluate Model:')
 	print('============================')
 
-	score = mnist_autoencoder_784_392_196_98_49_tanh_noisy.evaluate(X_test, X_test)
-
-	print('RMSE on validation set: {}'.format(score))
-
-
-	print('################################################################################################################')
-	print('################################################################################################################')
-
-
-def train_autoencoder_784_392_196_98_49_24_tanh():
-	print('============================')
-	print('Initialize Model: MNIST_autoencoder_784_392_196_98_49_24_tanh')
-	print('============================')
-
-	mnist_autoencoder_784_392_196_98_49_24_tanh = MNIST_autoencoder_784_392_196_98_49_24_tanh(noise_flag = False)
-
-
-	print('============================')
-	print('Train Model:')
-	print('============================')
-
-	mnist_autoencoder_784_392_196_98_49_24_tanh.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
-	       show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
-
-	mnist_autoencoder_784_392_196_98_49_24_tanh.save('./mnist_models/mnist_autoencoder_784_392_196_98_49_24_tanh')
-	mnist_autoencoder_784_392_196_98_49_24_tanh.load('./mnist_models/mnist_autoencoder_784_392_196_98_49_24_tanh')
-
-	print('============================')
-	print('Evaluate Model:')
-	print('============================')
-
-	score = mnist_autoencoder_784_392_196_98_49_24_tanh.evaluate(X_test, X_test)
-
-	print('RMSE on validation set: {}'.format(score))
-
-	print('################################################################################################################')
-	print('################################################################################################################')
-
-
-def train_autoencoder_784_392_196_98_49_24_tanh_noisy():
-	print('============================')
-	print('Initialize Model: MNIST_autoencoder_784_392_196_98_49_24_tanh_noisy')
-	print('============================')
-
-	mnist_autoencoder_784_392_196_98_49_24_tanh_noisy = MNIST_autoencoder_784_392_196_98_49_24_tanh(noise_flag = True)
-
-
-	print('============================')
-	print('Train Model:')
-	print('============================')
-
-	mnist_autoencoder_784_392_196_98_49_24_tanh_noisy.load('./mnist_models/mnist_autoencoder_784_392_196_98_49_24_tanh')
-
-	mnist_autoencoder_784_392_196_98_49_24_tanh_noisy.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
-	       show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
-
-	mnist_autoencoder_784_392_196_98_49_24_tanh_noisy.save('./mnist_models/mnist_autoencoder_784_392_196_98_49_24_tanh_noisy')
-	mnist_autoencoder_784_392_196_98_49_24_tanh_noisy.load('./mnist_models/mnist_autoencoder_784_392_196_98_49_24_tanh_noisy')
-
-	print('============================')
-	print('Evaluate Model:')
-	print('============================')
-
-	score = mnist_autoencoder_784_392_196_98_49_24_tanh_noisy.evaluate(X_test, X_test)
+	score = autoencoder.evaluate(X_test, X_test)
 
 	print('RMSE on validation set: {}'.format(score))
 
@@ -163,8 +72,11 @@ if __name__ == "__main__":
 	# settings
 	batch_size = 256
 	nb_classes = 10
-	nb_epoch = 750
+	nb_epoch = 1
 
+	print('============================')
+	print('Pre-processing data:')
+	print('============================')
 
 	# the data, shuffled and split between train and test sets
 	(X_train, y_train), (X_test, y_test) = mnist.load_data()
@@ -176,5 +88,14 @@ if __name__ == "__main__":
 	print(X_test.shape[0], 'test samples')
 
 	# models to train
-	train_autoencoder_784_392_196_98_49_24_tanh()
-	train_autoencoder_784_392_196_98_49_24_tanh_noisy()
+
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_tanh')
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', noise_flag = True)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh')
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', noise_flag = True)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh')
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh', noise_flag = True)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh')
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', noise_flag = True)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh')
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', noise_flag = True)
