@@ -17,7 +17,6 @@ from keras.layers.core import Dense, AutoEncoder, Dropout, Activation
 from keras.layers.noise import GaussianNoise
 from keras.optimizers import RMSprop, Adam
 from keras.utils import np_utils
-from sklearn.manifold import TSNE
 
 #plotting related
 import matplotlib.pyplot as plt
@@ -31,7 +30,7 @@ from KerasModel import MNIST_autoencoder_784_392_196_98_49_tanh
 
 batch_size = 256
 nb_classes = 10
-nb_epoch = 20
+nb_epoch = 10
 
 print('============================')
 print('Pre-processing data:')
