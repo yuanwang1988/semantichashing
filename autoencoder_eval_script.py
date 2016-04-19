@@ -23,161 +23,204 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cmx
 import matplotlib.colors as colors
 
-
 #import models
-from KerasModel import MNIST_autoencoder_784_392_196_98_49_tanh, \
-MNIST_autoencoder_784_392_196_98_49_24_tanh
+from KerasModel import \
+MNIST_autoencoder_784_392_196_98_tanh,\
+MNIST_autoencoder_784_392_196_98_49_tanh, \
+MNIST_autoencoder_784_392_196_98_49_24_tanh, \
+MNIST_autoencoder_784_392_196_98_49_20_tanh, \
+MNIST_autoencoder_784_392_196_98_49_24_12_tanh, \
+MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh
 
 
 batch_size = 256
 nb_classes = 10
 nb_epoch = 300
 
-print('============================')
-print('Pre-processing data:')
-print('============================')
 
-# the data, shuffled and split between train and test sets
-(X_train, y_train), (X_test, y_test) = mnist.load_data()
-X_train = X_train.reshape(-1, 784)
-X_test = X_test.reshape(-1, 784)
-X_train = X_train.astype("float32") / 255.0
-X_test = X_test.astype("float32") / 255.0
-print(X_train.shape[0], 'train samples')
-print(X_test.shape[0], 'test samples')
+def eval_autoencoder(autoencoder_name, noise_flag):
+	print('============================')
+	print('Initialize Model: MNIST_autoencoder_784_392_196_98_49_tanh')
+	print('============================')
 
-print('============================')
-print('Initialize Model: MNIST_autoencoder_784_392_196_98_49_tanh')
-print('============================')
+	autoencoder = eval('{}(noise_flag={})'.format(autoencoder_name, noise_flag))
 
-mnist_autoencoder_784_392_196_98_49_tanh = MNIST_autoencoder_784_392_196_98_49_tanh(noise_flag = False)
+	autoencoder.load('./mnist_models/{}_{}'.format(autoencoder_name, noise_flag))
 
-mnist_autoencoder_784_392_196_98_49_tanh.load('./mnist_models/mnist_autoencoder_784_392_196_98_49_tanh')
+	print('============================')
+	print('Evaluate Model:')
+	print('============================')
 
-print('============================')
-print('Evaluate Model:')
-print('============================')
+	score = autoencoder.evaluate(X_test, X_test)
 
-score = mnist_autoencoder_784_392_196_98_49_tanh.evaluate(X_test, X_test)
+	print('RMSE on validation set: {}'.format(score))
 
-print('RMSE on validation set: {}'.format(score))
+	print('============================')
+	print('Make Predictions:')
+	print('============================')
 
-print('============================')
-print('Make Predictions:')
-print('============================')
+	x_test_recon = autoencoder.predict(X_test)
 
-x_test_recon = mnist_autoencoder_784_392_196_98_49_tanh.predict(X_test)
+	for i in xrange(10):
+		x_test_recon = x_test_recon.reshape((-1,28,28))
+		plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
+		plt.show()
 
-for i in xrange(10):
-	x_test_recon = x_test_recon.reshape((-1,28,28))
-	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
-	plt.show()
-
-	plt.imshow(x_test_recon[i,:,:], cmap=plt.get_cmap("gray"))
-	plt.show()
-
-print('################################################################################################################')
-print('################################################################################################################')
+		plt.imshow(x_test_recon[i,:,:], cmap=plt.get_cmap("gray"))
+		plt.show()
 
 
-print('============================')
-print('Initialize Model: MNIST_autoencoder_784_392_196_98_49_tanh_noisy')
-print('============================')
 
-mnist_autoencoder_784_392_196_98_49_tanh_noisy = MNIST_autoencoder_784_392_196_98_49_tanh(noise_flag = True)
+# print('============================')
+# print('Initialize Model: MNIST_autoencoder_784_392_196_98_49_tanh')
+# print('============================')
 
+# mnist_autoencoder_784_392_196_98_49_tanh = MNIST_autoencoder_784_392_196_98_49_tanh(noise_flag = False)
 
-mnist_autoencoder_784_392_196_98_49_tanh_noisy.load('./mnist_models/mnist_autoencoder_784_392_196_98_49_tanh_noisy')
+# mnist_autoencoder_784_392_196_98_49_tanh.load('./mnist_models/mnist_autoencoder_784_392_196_98_49_tanh')
 
-print('============================')
-print('Evaluate Model:')
-print('============================')
+# print('============================')
+# print('Evaluate Model:')
+# print('============================')
 
-score = mnist_autoencoder_784_392_196_98_49_tanh_noisy.evaluate(X_test, X_test)
+# score = mnist_autoencoder_784_392_196_98_49_tanh.evaluate(X_test, X_test)
 
-print('RMSE on validation set: {}'.format(score))
+# print('RMSE on validation set: {}'.format(score))
 
-print('============================')
-print('Make Predictions:')
-print('============================')
+# print('============================')
+# print('Make Predictions:')
+# print('============================')
 
-x_test_recon = mnist_autoencoder_784_392_196_98_49_tanh_noisy.predict(X_test)
+# x_test_recon = mnist_autoencoder_784_392_196_98_49_tanh.predict(X_test)
 
-for i in xrange(10):
-	x_test_recon = x_test_recon.reshape((-1,28,28))
-	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
-	plt.show()
+# for i in xrange(10):
+# 	x_test_recon = x_test_recon.reshape((-1,28,28))
+# 	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
+# 	plt.show()
 
-	plt.imshow(x_test_recon[i,:,:], cmap=plt.get_cmap("gray"))
-	plt.show()
+# 	plt.imshow(x_test_recon[i,:,:], cmap=plt.get_cmap("gray"))
+# 	plt.show()
 
-
-print('################################################################################################################')
-print('################################################################################################################')
-
-
-print('============================')
-print('Initialize Model: MNIST_autoencoder_784_392_196_98_49_24_tanh')
-print('============================')
-
-mnist_autoencoder_784_392_196_98_49_24_tanh = MNIST_autoencoder_784_392_196_98_49_24_tanh(noise_flag = False)
-
-mnist_autoencoder_784_392_196_98_49_24_tanh.load('./mnist_models/mnist_autoencoder_784_392_196_98_49_24_tanh')
-
-print('============================')
-print('Evaluate Model:')
-print('============================')
-
-score = mnist_autoencoder_784_392_196_98_49_24_tanh.evaluate(X_test, X_test)
-
-print('RMSE on validation set: {}'.format(score))
+# print('################################################################################################################')
+# print('################################################################################################################')
 
 
-print('============================')
-print('Make Predictions:')
-print('============================')
+# print('============================')
+# print('Initialize Model: MNIST_autoencoder_784_392_196_98_49_tanh_noisy')
+# print('============================')
 
-x_test_recon = mnist_autoencoder_784_392_196_98_49_24_tanh.predict(X_test)
-
-for i in xrange(10):
-	x_test_recon = x_test_recon.reshape((-1,28,28))
-	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
-	plt.show()
-
-	plt.imshow(x_test_recon[i,:,:], cmap=plt.get_cmap("gray"))
-	plt.show()
-
-print('################################################################################################################')
-print('################################################################################################################')
+# mnist_autoencoder_784_392_196_98_49_tanh_noisy = MNIST_autoencoder_784_392_196_98_49_tanh(noise_flag = True)
 
 
-print('============================')
-print('Initialize Model: MNIST_autoencoder_784_392_196_98_49_24_tanh_noisy')
-print('============================')
+# mnist_autoencoder_784_392_196_98_49_tanh_noisy.load('./mnist_models/mnist_autoencoder_784_392_196_98_49_tanh_noisy')
 
-mnist_autoencoder_784_392_196_98_49_24_tanh_noisy = MNIST_autoencoder_784_392_196_98_49_24_tanh(noise_flag = True)
+# print('============================')
+# print('Evaluate Model:')
+# print('============================')
 
-mnist_autoencoder_784_392_196_98_49_24_tanh_noisy.load('./mnist_models/mnist_autoencoder_784_392_196_98_49_24_tanh_noisy')
+# score = mnist_autoencoder_784_392_196_98_49_tanh_noisy.evaluate(X_test, X_test)
 
-print('============================')
-print('Evaluate Model:')
-print('============================')
+# print('RMSE on validation set: {}'.format(score))
 
-score = mnist_autoencoder_784_392_196_98_49_24_tanh_noisy.evaluate(X_test, X_test)
+# print('============================')
+# print('Make Predictions:')
+# print('============================')
 
-print('RMSE on validation set: {}'.format(score))
+# x_test_recon = mnist_autoencoder_784_392_196_98_49_tanh_noisy.predict(X_test)
+
+# for i in xrange(10):
+# 	x_test_recon = x_test_recon.reshape((-1,28,28))
+# 	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
+# 	plt.show()
+
+# 	plt.imshow(x_test_recon[i,:,:], cmap=plt.get_cmap("gray"))
+# 	plt.show()
 
 
-print('============================')
-print('Make Predictions:')
-print('============================')
+# print('################################################################################################################')
+# print('################################################################################################################')
 
-x_test_recon = mnist_autoencoder_784_392_196_98_49_24_tanh_noisy.predict(X_test)
 
-for i in xrange(10):
-	x_test_recon = x_test_recon.reshape((-1,28,28))
-	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
-	plt.show()
+# print('============================')
+# print('Initialize Model: MNIST_autoencoder_784_392_196_98_49_24_tanh')
+# print('============================')
 
-	plt.imshow(x_test_recon[i,:,:], cmap=plt.get_cmap("gray"))
-	plt.show()
+# mnist_autoencoder_784_392_196_98_49_24_tanh = MNIST_autoencoder_784_392_196_98_49_24_tanh(noise_flag = False)
+
+# mnist_autoencoder_784_392_196_98_49_24_tanh.load('./mnist_models/mnist_autoencoder_784_392_196_98_49_24_tanh')
+
+# print('============================')
+# print('Evaluate Model:')
+# print('============================')
+
+# score = mnist_autoencoder_784_392_196_98_49_24_tanh.evaluate(X_test, X_test)
+
+# print('RMSE on validation set: {}'.format(score))
+
+
+# print('============================')
+# print('Make Predictions:')
+# print('============================')
+
+# x_test_recon = mnist_autoencoder_784_392_196_98_49_24_tanh.predict(X_test)
+
+# for i in xrange(10):
+# 	x_test_recon = x_test_recon.reshape((-1,28,28))
+# 	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
+# 	plt.show()
+
+# 	plt.imshow(x_test_recon[i,:,:], cmap=plt.get_cmap("gray"))
+# 	plt.show()
+
+# print('################################################################################################################')
+# print('################################################################################################################')
+
+
+# print('============================')
+# print('Initialize Model: MNIST_autoencoder_784_392_196_98_49_24_tanh_noisy')
+# print('============================')
+
+# mnist_autoencoder_784_392_196_98_49_24_tanh_noisy = MNIST_autoencoder_784_392_196_98_49_24_tanh(noise_flag = True)
+
+# mnist_autoencoder_784_392_196_98_49_24_tanh_noisy.load('./mnist_models/mnist_autoencoder_784_392_196_98_49_24_tanh_noisy')
+
+# print('============================')
+# print('Evaluate Model:')
+# print('============================')
+
+# score = mnist_autoencoder_784_392_196_98_49_24_tanh_noisy.evaluate(X_test, X_test)
+
+# print('RMSE on validation set: {}'.format(score))
+
+
+# print('============================')
+# print('Make Predictions:')
+# print('============================')
+
+# x_test_recon = mnist_autoencoder_784_392_196_98_49_24_tanh_noisy.predict(X_test)
+
+# for i in xrange(10):
+# 	x_test_recon = x_test_recon.reshape((-1,28,28))
+# 	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
+# 	plt.show()
+
+# 	plt.imshow(x_test_recon[i,:,:], cmap=plt.get_cmap("gray"))
+# 	plt.show()
+
+
+
+if __name__ == '__main__':
+	print('============================')
+	print('Pre-processing data:')
+	print('============================')
+
+	# the data, shuffled and split between train and test sets
+	(X_train, y_train), (X_test, y_test) = mnist.load_data()
+	X_train = X_train.reshape(-1, 784)
+	X_test = X_test.reshape(-1, 784)
+	X_train = X_train.astype("float32") / 255.0
+	X_test = X_test.astype("float32") / 255.0
+	print(X_train.shape[0], 'train samples')
+	print(X_test.shape[0], 'test samples')
+
+
