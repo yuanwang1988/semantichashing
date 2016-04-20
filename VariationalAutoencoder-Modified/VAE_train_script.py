@@ -82,11 +82,12 @@ def train_VAE(VAE_name, VAE_save_folder, continuous = False, \
         RMSE_valid_list = np.append(RMSE_valid_list, RMSE_valid)
 
         print "Epoch {0} finished. LB: {1}, RMSE train: {2}, RMSE valid: {3}, time: {4}".format(epoch, LB, RMSE_train, RMSE_valid, time.time() - start)
-        np.save(path + "LB_list.npy", LB_list)
-        np.save(path + "RMSE_train_list", RMSE_train_list)
-        np.save(path + "RMSE_valid_list", RMSE_valid_list)
+    
+    np.save(path + "LB_list.npy", LB_list)
+    np.save(path + "RMSE_train_list", RMSE_train_list)
+    np.save(path + "RMSE_valid_list", RMSE_valid_list)
 
-        model.save_parameters(path)
+    model.save_parameters(path)
 
     valid_LB = model.likelihood(x_valid)
     RMSE_valid = model.eval_rmse(x_valid)
