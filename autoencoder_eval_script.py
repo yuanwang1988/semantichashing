@@ -154,7 +154,7 @@ def eval_autoencoder_encode(autoencoder_name, model_weight_path, noise_flag=Fals
 	plt.title('T-SNE of Activation at Top Layer - Colour Legend')
 	plt.show()
 
-def eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_path, Limit = None, noise_flag=False, noise_level=4):
+def eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_path, Limit = None, visual_flag = True, noise_flag=False, noise_level=4):
 	print('============================')
 	print('Initialize Model: {}_{}'.format(autoencoder_name, noise_flag))
 	print('============================')
@@ -248,37 +248,39 @@ def eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_
 	recall_array = np.mean(recall_mat, axis=0)
 	false_pos_rate_array = np.mean(false_pos_rate_mat, axis=0)
 
-	#Precision-Recall-NumResults vs. Hamming distance
+	if visual_flag:
 
-	n_results_line = plt.plot(hamming_distance_array, n_results_array, label='Num of Results / Total')
-	precision_line = plt.plot(hamming_distance_array, precision_array, label='Precision')
-	recall_line = plt.plot(hamming_distance_array, recall_array, label='Recall')
+		#Precision-Recall-NumResults vs. Hamming distance
 
-	plt.legend()
+		n_results_line = plt.plot(hamming_distance_array, n_results_array, label='Num of Results / Total')
+		precision_line = plt.plot(hamming_distance_array, precision_array, label='Precision')
+		recall_line = plt.plot(hamming_distance_array, recall_array, label='Recall')
 
-	plt.xlabel('Hamming Distance')
-	plt.ylabel('\%')
-	plt.title('Precision-Recall-NumResults vs. Hamming Distance')
+		plt.legend()
 
-	plt.show()
+		plt.xlabel('Hamming Distance')
+		plt.ylabel('\%')
+		plt.title('Precision-Recall-NumResults vs. Hamming Distance')
 
-	#Precision recall curve
-	plt.plot(recall_array, precision_array)
+		plt.show()
 
-	plt.xlabel('Recall')
-	plt.ylabel('Precision')
-	plt.title('Precision-Recall')
+		#Precision recall curve
+		plt.plot(recall_array, precision_array)
 
-	plt.show()
+		plt.xlabel('Recall')
+		plt.ylabel('Precision')
+		plt.title('Precision-Recall')
 
-	#ROC Curve
-	plt.plot(false_pos_rate_array, recall_array)
+		plt.show()
 
-	plt.xlabel('False Positive Rate')
-	plt.ylabel('True Positive Rate')
-	plt.title('Receiver Operating Characteristic')
+		#ROC Curve
+		plt.plot(false_pos_rate_array, recall_array)
 
-	plt.show()
+		plt.xlabel('False Positive Rate')
+		plt.ylabel('True Positive Rate')
+		plt.title('Receiver Operating Characteristic')
+
+		plt.show()
 
 
 	AUC_score = metrics.auc(false_pos_rate_array, recall_array)
@@ -411,16 +413,16 @@ if __name__ == '__main__':
 	# eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_False')
 
 	# eval_autoencoder_encode('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True')
-	$eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True')
+	# eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True')
 
 
-	eval_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_tanh_False', noise_flag=False)
-	eval_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_tanh_True_4', noise_flag=True, noise_level=4)
-	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_False', noise_flag=False)
-	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_4', noise_flag=True, noise_level=4)
-	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_False', noise_flag=False)
-	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True_4', noise_flag=True, noise_level=4)
-	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_False', noise_flag=False)
-	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_True_4', noise_flag=True, noise_level=4)
-	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_False', noise_flag=False)
-	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_True_4', noise_flag=True, noise_level=4)
+	eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_tanh_False', noise_flag=False, visual_flag=False)
+	eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_tanh_True_4', noise_flag=True, noise_level=4, visual_flag=False)
+	eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_False', noise_flag=False, visual_flag=False)
+	eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_4', noise_flag=True, noise_level=4, visual_flag=False)
+	eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_20_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_False', noise_flag=False, visual_flag=False)
+	eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_20_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True_4', noise_flag=True, noise_level=4, visual_flag=False)
+	eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_False', noise_flag=False, visual_flag=False)
+	eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_True_4', noise_flag=True, noise_level=4, visual_flag=False)
+	eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_False', noise_flag=False, visual_flag=False)
+	eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_True_4', noise_flag=True, noise_level=4, visual_flag=False)
