@@ -69,6 +69,7 @@ MNIST_data/
 tmp/
 mnist_models/
 results/
+VariationalAutoencoder-Modified/results
 
 
 #Exclude data
