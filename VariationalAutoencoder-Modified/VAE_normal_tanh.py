@@ -7,27 +7,24 @@ import theano.tensor as T
 import cPickle
 from collections import OrderedDict
 
+#custom functions
+
+from theano_utils import relu, betaln, hard_cap, rmse_score
+
 epsilon = 1e-8
 
-def relu(x):
-    return T.switch(x<0, 0, x)
-
-def betaln(alpha, beta):
-    return T.gammaln(alpha)+T.gammaln(beta) - T.gammaln(alpha+beta)
-
-def hard_cap(x, lowerbound, upperbound):
-    lower_cap = T.switch(x<lowerbound, lowerbound, x)
-    return T.switch(lower_cap>upperbound, upperbound, x)
 
 
 class VAE:
     """This class implements the Variational Auto Encoder"""
-    def __init__(self, continuous, hu_encoder, hu_decoder, n_latent, x_train, b1=0.05, b2=0.001, batch_size=100, learning_rate=0.001, lam=0):
+    def __init__(self, continuous, hu_encoder, hu_decoder, n_latent, x_train, prior_noise_level=4, b1=0.05, b2=0.001, batch_size=100, learning_rate=0.001, lam=0):
         self.continuous = continuous
         self.hu_encoder = hu_encoder
         self.hu_decoder = hu_decoder
         self.n_latent = n_latent
         [self.N, self.features] = x_train.shape
+
+        self.prior_noise_level = prior_noise_level
 
         self.prng = np.random.RandomState(42)
 
@@ -85,7 +82,7 @@ class VAE:
 
         x_train = theano.shared(x_train.astype(theano.config.floatX), name="x_train")
 
-        self.update, self.likelihood, self.encode, self.decode, self.encode_mu, self.encode_log_sigma = self.create_gradientfunctions(x_train)
+        self.update, self.likelihood, self.encode, self.decode, self.encode_mu, self.encode_log_sigma, self.eval_rmse = self.create_gradientfunctions(x_train)
 
 
 
@@ -151,7 +148,7 @@ class VAE:
         # Expectation of (logpz - logqz_x) over logqz_x is equal to KLD (see appendix B):
         # KLD = 0.5 * T.sum(1 + log_sigma - mu**2 - T.exp(log_sigma), axis=1, keepdims=True)
 
-        KLD = 0.5 * T.sum(1 + log_sigma - (mu**2 + T.exp(log_sigma)) / 32 , axis=1, keepdims=True)
+        KLD = 0.5 * T.sum(1 + log_sigma - (mu**2 + T.exp(log_sigma)) / (2*(self.prior_noise_level**2)) , axis=1, keepdims=True)
 
         # KLD = cross-entroy of the sample distribution of sigmoid(z) from the beta distribution
         # alpha = 0.5
@@ -162,7 +159,8 @@ class VAE:
 
         # Average over batch dimension
         logpx = T.mean(logpxz + KLD)
-        #logpx = T.mean(logpxz)
+ 
+        rmse_val = rmse_score(x, reconstructed_x)
 
         # Compute all the gradients
         gradients = T.grad(logpx, self.params.values())
@@ -179,12 +177,13 @@ class VAE:
         # Define a bunch of functions for convenience
         update = theano.function([batch, epoch], logpx, updates=updates, givens=givens)
         likelihood = theano.function([x], logpx)
+        eval_rmse = theano.function([x], rmse_val)
         encode = theano.function([x], z)
         decode = theano.function([z], reconstructed_x)
         encode_mu = theano.function([x], mu)
         encode_log_sigma = theano.function([x], log_sigma)
 
-        return update, likelihood, encode, decode, encode_mu, encode_log_sigma
+        return update, likelihood, encode, decode, encode_mu, encode_log_sigma, eval_rmse
 
     def transform_data(self, x_train):
         transformed_x = np.zeros((self.N, self.n_latent))

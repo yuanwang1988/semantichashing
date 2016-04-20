@@ -7,6 +7,9 @@ import theano.tensor as T
 import cPickle
 from collections import OrderedDict
 
+#custom functions
+from theano_utils import relu, betaln, hard_cap, rmse_score
+
 epsilon = 1e-8
 
 def relu(x):

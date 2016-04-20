@@ -15,7 +15,7 @@ from keras.layers.core import Dense, AutoEncoder, Dropout, Activation
 from keras.layers.noise import GaussianNoise
 from keras.optimizers import RMSprop, Adam
 from keras.utils import np_utils
-# from sklearn.manifold import TSNE
+from sklearn.manifold import TSNE
 from sklearn import metrics
 
 #plotting related
@@ -124,34 +124,34 @@ def eval_autoencoder_encode(autoencoder_name, model_weight_path, noise_flag=Fals
 	print('Z proportion >  0.5 : {}'.format(z_prop_high))
 	print('Z proportion <= 0.5: {}'.format(z_prop_low))
 
-	# # tsne visualization of latent variables
-	# cmap = get_cmap(10)
-	# colour_array = []
-	# for s in xrange(1000):
-	# 	colour_array.append(cmap(y_test[s]))
+	# tsne visualization of latent variables
+	cmap = get_cmap(10)
+	colour_array = []
+	for s in xrange(1000):
+		colour_array.append(cmap(y_test[s]))
 
 
-	# tsne_model = TSNE(n_components=2, random_state=0)
-	# np.set_printoptions(suppress=True)
-	# tsne_vec = tsne_model.fit_transform(z_test[0:1000,:])
+	tsne_model = TSNE(n_components=2, random_state=0)
+	np.set_printoptions(suppress=True)
+	tsne_vec = tsne_model.fit_transform(z_test[0:1000,:])
 
-	# plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array)
-	# if noise_flag:
-	# 	plt.title('T-SNE of Activation at Top Layer - Gaussian Noise = {}'.format(noise_level))
-	# else:
-	# 	plt.title('T-SNE of Activation at Top Layer - Gaussian Noise = {}'.format(noise_flag))
-	# plt.show()
+	plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array)
+	if noise_flag:
+		plt.title('T-SNE of Activation at Top Layer - Gaussian Noise = {}'.format(noise_level))
+	else:
+		plt.title('T-SNE of Activation at Top Layer - Gaussian Noise = {}'.format(noise_flag))
+	plt.show()
 
 
-	# cmap = get_cmap(10)
-	# colour_array = []
-	# idx_array = np.zeros((10,1))
-	# for s in xrange(10):
-	# 	idx_array[s,0] = s+1
-	# 	colour_array.append(cmap(s+1))
+	cmap = get_cmap(10)
+	colour_array = []
+	idx_array = np.zeros((10,1))
+	for s in xrange(10):
+		idx_array[s,0] = s+1
+		colour_array.append(cmap(s+1))
 
-	# plt.scatter(idx_array[:,0], idx_array[:,0], color=colour_array)
-	# plt.title('T-SNE of Activation at Top Layer - Colour Legend')
+	plt.scatter(idx_array[:,0], idx_array[:,0], color=colour_array)
+	plt.title('T-SNE of Activation at Top Layer - Colour Legend')
 	plt.show()
 
 def eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_path, Limit = None, visual_flag = True, noise_flag=False, noise_level=4):
