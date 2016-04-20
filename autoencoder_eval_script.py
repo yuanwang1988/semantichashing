@@ -16,6 +16,7 @@ from keras.layers.noise import GaussianNoise
 from keras.optimizers import RMSprop, Adam
 from keras.utils import np_utils
 from sklearn.manifold import TSNE
+from sklearn import metrics
 
 #plotting related
 import matplotlib.pyplot as plt
@@ -37,7 +38,8 @@ def eval_autoencoder(autoencoder_name, model_weight_path, noise_flag=False, nois
 	eval_autoencoder_RMSE(autoencoder_name, model_weight_path, noise_flag=False, noise_level=4)
 	eval_autoencoder_recon(autoencoder_name, model_weight_path, noise_flag=False, noise_level=4)
 	eval_autoencoder_encode(autoencoder_name, model_weight_path, noise_flag=False, noise_level=4)
-	eval_autoencoder_hashlookup(autoencoder_name, model_weight_path, noise_flag=False, noise_level=4)
+	#eval_autoencoder_hashlookup(autoencoder_name, model_weight_path, noise_flag=False, noise_level=4)
+	eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_path, noise_flag=False, noise_level=4)
 
 
 def eval_autoencoder_RMSE(autoencoder_name, model_weight_path, noise_flag=False, noise_level=4):
@@ -104,10 +106,23 @@ def eval_autoencoder_encode(autoencoder_name, model_weight_path, noise_flag=Fals
 
 	plt.xlabel('Latent Variable Activation')
 	plt.ylabel('Frequency')
-	plt.title('Histogram of Activation at Top Layer - Gaussian Noise = {}'.format(noise_flag))
+	if noise_flag:
+		plt.title('Histogram of Activation at Top Layer - Gaussian Noise = {}'.format(noise_level))
+	else:
+		plt.title('Histogram of Activation at Top Layer - Gaussian Noise = {}'.format(noise_flag))
 	plt.grid(True)
 
 	plt.show()
+
+	z_mean = np.mean(z_test)
+	z_median = np.median(z_test)
+	z_prop_high = float(np.sum(z_test>0.0))/z_test.shape[0]
+	z_prop_low = float(np.sum(z_test<=0.0))/z_test.shape[0]
+
+	print('Z mean: {}'.format(z_mean))
+	print('Z median: {}'.format(z_median))
+	print('Z proportion >  0.5 : {}'.format(z_prop_high))
+	print('Z proportion <= 0.5: {}'.format(z_prop_low))
 
 	# tsne visualization of latent variables
 	cmap = get_cmap(10)
@@ -121,7 +136,10 @@ def eval_autoencoder_encode(autoencoder_name, model_weight_path, noise_flag=Fals
 	tsne_vec = tsne_model.fit_transform(z_test[0:1000,:])
 
 	plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array)
-	plt.title('T-SNE of Activation at Top Layer - Gaussian Noise = {}'.format(noise_flag))
+	if noise_flag:
+		plt.title('T-SNE of Activation at Top Layer - Gaussian Noise = {}'.format(noise_level))
+	else:
+		plt.title('T-SNE of Activation at Top Layer - Gaussian Noise = {}'.format(noise_flag))
 	plt.show()
 
 
@@ -136,6 +154,137 @@ def eval_autoencoder_encode(autoencoder_name, model_weight_path, noise_flag=Fals
 	plt.title('T-SNE of Activation at Top Layer - Colour Legend')
 	plt.show()
 
+def eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_path, noise_flag=False, noise_level=4):
+	print('============================')
+	print('Initialize Model: {}_{}'.format(autoencoder_name, noise_flag))
+	print('============================')
+
+	autoencoder = eval('{}(noise_flag={})'.format(autoencoder_name, noise_flag, noise_level))
+
+	autoencoder.load(model_weight_path)
+
+	print('============================')
+	print('Encode:')
+	print('============================')
+
+	z_test = autoencoder.encode(X_test)
+
+	idx_array = np.zeros((z_test.shape[0], 1), dtype=int)
+	for i in xrange(z_test.shape[0]):
+		idx_array[i,0] = i
+
+
+
+	myTable = linearLookupTable(z_test, X_test)
+	myTable2 = linearLookupTable(z_test, idx_array)
+	myTable3 = linearLookupTable(z_test, y_test)
+
+	print('============================')
+	print('Compute Sample Stats:')
+	print('============================')
+
+	print('Frequency of Digits:')
+	y_test_freqs= np.bincount(y_test)
+	ii = np.nonzero(y_test_freqs)[0]
+
+	print(zip(ii, y_test_freqs[ii]))
+
+	N = z_test.shape[0]
+	H = z_test.shape[1]
+
+	N = 100
+
+	print('============================')
+	print('Perform lookup:')
+	print('============================')	
+
+	hamming_distance_array = np.arange(H+1)
+
+	n_results_mat = np.zeros((N, H+1))
+	precision_mat = np.zeros((N, H+1))
+	recall_mat = np.zeros((N, H+1))
+	false_pos_rate_mat = np.zeros((N, H+1))
+
+	for i in xrange(N):
+		lookup_z = z_test[i,:]
+		lookup_y = y_test[i]
+
+		n_results = 0
+		true_pos = 0
+
+		for hamming_distance in xrange(H+1):
+			resultX, resultZ = myTable.lookup(lookup_z, hamming_distance)
+			#resultIdx, _resultZ = myTable2.lookup(lookup_z, hamming_distance)
+			#resultY = y_test[resultIdx]
+			resultY, _resultZ = myTable3.lookup(lookup_z, hamming_distance)
+
+			n_results = n_results + resultZ.shape[0]
+			true_pos = true_pos + np.sum(resultY == lookup_y)
+
+			precision = float(true_pos) / n_results
+			recall = float(true_pos) / y_test_freqs[lookup_y]
+			false_positive_rate = float(n_results - true_pos)/(z_test.shape[0] - y_test_freqs[lookup_y])
+
+			n_results_mat[i,hamming_distance] = float(n_results)/z_test.shape[0]
+			precision_mat[i,hamming_distance] = precision
+			recall_mat[i,hamming_distance] = recall
+			false_pos_rate_mat[i,hamming_distance] = false_positive_rate
+
+			# print('Example: {}'.format(i))
+			# print('Hamm Dist: {}'.format(hamming_distance))
+			# print('TP: {}'.format(true_pos))
+			# print('n_results: {}'.format(n_results))
+			# print('Precision: {}'.format(precision))
+			# print('Recall: {}'.format(recall))
+			# print('---------------------------------')
+
+		if i%10 == 0:
+			print('Finished example {}'.format(i))
+
+
+	n_results_array = np.mean(n_results_mat, axis=0)
+	precision_array = np.mean(precision_mat, axis=0)
+	recall_array = np.mean(recall_mat, axis=0)
+	false_pos_rate_array = np.mean(false_pos_rate_mat, axis=0)
+
+	#Precision-Recall-NumResults vs. Hamming distance
+
+	n_results_line = plt.plot(hamming_distance_array, n_results_array, label='Num of Results / Total')
+	precision_line = plt.plot(hamming_distance_array, precision_array, label='Precision')
+	recall_line = plt.plot(hamming_distance_array, recall_array, label='Recall')
+
+	plt.legend()
+
+	plt.xlabel('Hamming Distance')
+	plt.ylabel('\%')
+	plt.title('Precision-Recall-NumResults vs. Hamming Distance')
+
+	plt.show()
+
+	#Precision recall curve
+	plt.plot(recall_array, precision_array)
+
+	plt.xlabel('Recall')
+	plt.ylabel('Precision')
+	plt.title('Precision-Recall')
+
+	plt.show()
+
+	#ROC Curve
+	plt.plot(false_pos_rate_array, recall_array)
+
+	plt.xlabel('False Positive Rate')
+	plt.ylabel('True Positive Rate')
+	plt.title('Receiver Operating Characteristic')
+
+	plt.show()
+
+
+	AUC_score = metrics.auc(false_pos_rate_array, recall_array)
+
+	print('AUC: {}'.format(AUC_score))
+
+	return hamming_distance_array, n_results_array, precision_array, recall_array, false_pos_rate_array, AUC_score
 
 def eval_autoencoder_hashlookup(autoencoder_name, model_weight_path, noise_flag=False, noise_level=4):
 
@@ -242,7 +391,27 @@ if __name__ == '__main__':
 	print(X_test.shape[0], 'test samples')
 
 
-	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', './mnist_models/mnist_autoencoder_784_392_196_98_49_tanh_False')
-	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', './mnist_models/mnist_autoencoder_784_392_196_98_49_tanh_True')
+	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', './mnist_models/mnist_autoencoder_784_392_196_98_49_tanh_False')
+	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', './mnist_models/mnist_autoencoder_784_392_196_98_49_tanh_True')
 
 
+	# eval_autoencoder_RMSE('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_True')
+	# eval_autoencoder_recon('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_True')
+	# eval_autoencoder_encode('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_True')
+	# eval_autoencoder_encode('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_False')
+	# eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_False')
+
+	# eval_autoencoder_encode('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True')
+	# eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True')
+
+
+	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_tanh_False', noise_flag=False)
+	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_tanh_True', noise_flag=True, noise_level=4)
+	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_tanh_False', noise_flag=False)
+	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_tanh_True', noise_flag=True, noise_level=4)
+	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_False', noise_flag=False)
+	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True', noise_flag=True, noise_level=4)
+	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_False', noise_flag=False)
+	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_True', noise_flag=True, noise_level=4)
+	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_False', noise_flag=False)
+	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_True', noise_flag=True, noise_level=4)

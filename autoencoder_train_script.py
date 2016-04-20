@@ -50,15 +50,19 @@ def train_autoencoder(autoencoder_name, noise_flag=False, noise_level=4):
 	if noise_flag:
 		autoencoder.load('./mnist_models/{}_{}'.format(autoencoder_name, False))
 
-	autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
+	hist = autoencoder.train(X_train, X_train, batch_size=batch_size, nb_epoch=nb_epoch,
 	       show_accuracy=False, verbose=1, validation_data=[X_test, X_test])
 
 	if noise_flag:
 		autoencoder.save('./mnist_models/{}_{}_{}'.format(autoencoder_name, noise_flag, noise_level))
 		autoencoder.load('./mnist_models/{}_{}_{}'.format(autoencoder_name, noise_flag, noise_level))
+
+		np.savez('./mnist_models/{}_{}_{}_hist'.format(autoencoder_name, noise_flag, noise_level), hist=hist)
 	else:
 		autoencoder.save('./mnist_models/{}_{}'.format(autoencoder_name, noise_flag))
 		autoencoder.load('./mnist_models/{}_{}'.format(autoencoder_name, noise_flag))
+
+		np.savez('./mnist_models/{}_{}_hist'.format(autoencoder_name, noise_flag), hist=hist)
 
 
 	print('============================')
@@ -94,9 +98,8 @@ if __name__ == "__main__":
 
 	# models to train
 
-	train_autoencoder('MNIST_autoencoder_784_392_196_98_tanh')
-	train_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', noise_flag = True)
-	train_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', noise_flag = True, noise_level=2)
+	# train_autoencoder('MNIST_autoencoder_784_392_196_98_tanh')
+	# train_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', noise_flag = True)
 	# train_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh')
 	# train_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', noise_flag = True)
 	# train_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh')
@@ -105,3 +108,28 @@ if __name__ == "__main__":
 	# train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', noise_flag = True)
 	# train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh')
 	# train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', noise_flag = True)
+
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', noise_flag = True, noise_level=1)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', noise_flag = True, noise_level=2)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', noise_flag = True, noise_level=8)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', noise_flag = True, noise_level=16)
+
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', noise_flag = True, noise_level=1)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', noise_flag = True, noise_level=2)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', noise_flag = True, noise_level=8)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', noise_flag = True, noise_level=16)
+
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh', noise_flag = True, noise_level=1)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh', noise_flag = True, noise_level=2)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh', noise_flag = True, noise_level=8)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh', noise_flag = True, noise_level=16)
+
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', noise_flag = True, noise_level=1)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', noise_flag = True, noise_level=2)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', noise_flag = True, noise_level=8)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', noise_flag = True, noise_level=16)
+
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', noise_flag = True, noise_level=1)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', noise_flag = True, noise_level=2)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', noise_flag = True, noise_level=8)
+	train_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', noise_flag = True, noise_level=16)

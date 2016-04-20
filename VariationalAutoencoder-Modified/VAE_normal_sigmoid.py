@@ -15,6 +15,10 @@ def relu(x):
 def betaln(alpha, beta):
     return T.gammaln(alpha)+T.gammaln(beta) - T.gammaln(alpha+beta)
 
+def hard_cap(x, lowerbound, upperbound):
+    lower_cap = T.switch(x<lowerbound, lowerbound, x)
+    return T.switch(lower_cap>upperbound, upperbound, x)
+
 
 class VAE:
     """This class implements the Variational Auto Encoder"""
@@ -106,6 +110,8 @@ class VAE:
         eps2 = srng.normal(mu.shape)
 
         # Reparametrize
+
+        eps = hard_cap(eps, -3, 3)
 
         z = mu + T.exp(0.5 * log_sigma) * eps
 
