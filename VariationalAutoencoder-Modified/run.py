@@ -5,7 +5,7 @@ sys.path.append('../')
 import numpy as np
 import time
 import os
-from VAE_uniform_sigmoid import VAE
+from VAE_uniform_tanh import VAE
 import cPickle
 import gzip
 
@@ -30,8 +30,6 @@ def get_cmap(N):
     def map_index_to_rgb_color(index):
         return scalar_map.to_rgba(index)
     return map_index_to_rgb_color
-
-
 
 np.random.seed(42)
 
@@ -232,7 +230,7 @@ if __name__ == "__main__":
 
     y_test = t_test
     X_test = x_test
-    z_test = z_test_post_activation
+    z_test = z_test
 
     y_test_freqs= np.bincount(y_test)
     ii = np.nonzero(y_test_freqs)[0]
@@ -252,12 +250,14 @@ if __name__ == "__main__":
 
 
     #choose index of the test example
-    i = 0 #652 is one of the few samples that have close by neighbours
+    i = 652 #652 is one of the few samples that have close by neighbours
 
     plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
     plt.show()
 
     lookup_z = z_test[i,:]
+
+    print('lookup_z: {}'.format(lookup_z))
 
     print('hamming distance of 1')
     resultX, resultZ = myTable.lookup(lookup_z, 1)
