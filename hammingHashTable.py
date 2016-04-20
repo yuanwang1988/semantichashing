@@ -28,7 +28,10 @@ class linearLookupTable(object):
 		key = binarize(key)
 		resultIdx = np.sum(np.bitwise_xor(self.dataZ, key), axis=1) == hamming_distance
 		resultZ = self.dataZ[resultIdx, :]
-		resultX = self.dataX[resultIdx, :]
+		if self.dataX.ndim > 1:
+			resultX = self.dataX[resultIdx, :]
+		else:
+			resultX = self.dataX[resultIdx]
 
 		return resultX, resultZ
 
@@ -127,7 +130,7 @@ def binarize(x):
 	'''Takes an numpy array with values between 0 and 1 and returns 
 	a numpy array of values rounded to {0,1}'''
 
-	return np.array(x > 0.5, dtype=bool);
+	return np.array(x > 0.0, dtype=bool);
 
 def hamming_ball(x, hamming_distance):
 	'''	a numpy array of binary values and return 
