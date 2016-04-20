@@ -68,6 +68,8 @@ tensorflowtest/mnist_models/
 MNIST_data/
 tmp/
 mnist_models/
+results/
+
 
 #Exclude data
 *.h5

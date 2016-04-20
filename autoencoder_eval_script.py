@@ -154,7 +154,7 @@ def eval_autoencoder_encode(autoencoder_name, model_weight_path, noise_flag=Fals
 	plt.title('T-SNE of Activation at Top Layer - Colour Legend')
 	plt.show()
 
-def eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_path, noise_flag=False, noise_level=4):
+def eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_path, Limit = None, noise_flag=False, noise_level=4):
 	print('============================')
 	print('Initialize Model: {}_{}'.format(autoencoder_name, noise_flag))
 	print('============================')
@@ -191,8 +191,9 @@ def eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_
 
 	N = z_test.shape[0]
 	H = z_test.shape[1]
+	if Limit != None:
+		N = Limit
 
-	N = 100
 
 	print('============================')
 	print('Perform lookup:')
@@ -283,6 +284,14 @@ def eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_
 	AUC_score = metrics.auc(false_pos_rate_array, recall_array)
 
 	print('AUC: {}'.format(AUC_score))
+
+	np.savez('{}_{}_{}_IR_scores'.format(autoencoder_name, noise_flag, noise_level), \
+		hamming_distance_array=hamming_distance_array, \
+		n_results_array=n_results_array, \
+		precision_array=precision_array, \
+		recall_array=recall_array, \
+		false_pos_rate_array=false_pos_rate_array, \
+		AUC_score = AUC_score)
 
 	return hamming_distance_array, n_results_array, precision_array, recall_array, false_pos_rate_array, AUC_score
 
@@ -402,16 +411,16 @@ if __name__ == '__main__':
 	# eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_False')
 
 	# eval_autoencoder_encode('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True')
-	# eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True')
+	$eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True')
 
 
-	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_tanh_False', noise_flag=False)
-	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_tanh_True', noise_flag=True, noise_level=4)
-	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_tanh_False', noise_flag=False)
-	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_tanh_True', noise_flag=True, noise_level=4)
-	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_False', noise_flag=False)
-	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True', noise_flag=True, noise_level=4)
-	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_False', noise_flag=False)
-	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_True', noise_flag=True, noise_level=4)
-	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_False', noise_flag=False)
-	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_True', noise_flag=True, noise_level=4)
+	eval_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_tanh_False', noise_flag=False)
+	eval_autoencoder('MNIST_autoencoder_784_392_196_98_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_tanh_True_4', noise_flag=True, noise_level=4)
+	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_False', noise_flag=False)
+	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_4', noise_flag=True, noise_level=4)
+	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_False', noise_flag=False)
+	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_20_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True_4', noise_flag=True, noise_level=4)
+	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_False', noise_flag=False)
+	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_True_4', noise_flag=True, noise_level=4)
+	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_False', noise_flag=False)
+	eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_True_4', noise_flag=True, noise_level=4)
