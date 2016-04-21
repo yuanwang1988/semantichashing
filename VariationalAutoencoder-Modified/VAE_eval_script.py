@@ -15,7 +15,7 @@ from VAE_uniform_tanh import VAE as VAE_uniform_tanh
 from VAE_normal import VAE as VAE_normal
 
 
-from sklearn.manifold import TSNE
+# from sklearn.manifold import TSNE
 from sklearn import metrics
 
 #plotting related
@@ -115,33 +115,33 @@ def eval_autoencoder_encode(autoencoder_name, model_weight_path, n_latent, prior
 	print('Z mean: {}'.format(z_mean))
 	print('Z median: {}'.format(z_median))
 
-	# tsne visualization of latent variables
-	nExamples = 1000
+	# # tsne visualization of latent variables
+	# nExamples = 1000
 
-	cmap = get_cmap(10)
-	colour_array = []
-	for s in xrange(nExamples):
-		colour_array.append(cmap(y_test[s]))
+	# cmap = get_cmap(10)
+	# colour_array = []
+	# for s in xrange(nExamples):
+	# 	colour_array.append(cmap(y_test[s]))
 
 
-	tsne_model = TSNE(n_components=2, random_state=0)
-	np.set_printoptions(suppress=True)
-	tsne_vec = tsne_model.fit_transform(z_test[0:nExamples,:])
+	# tsne_model = TSNE(n_components=2, random_state=0)
+	# np.set_printoptions(suppress=True)
+	# tsne_vec = tsne_model.fit_transform(z_test[0:nExamples,:])
 
-	plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array, s=1)
-	plt.title('T-SNE of Activation at Top Layer - Prior Noise = {}'.format(prior_noise_level))
-	plt.show()
+	# plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array, s=1)
+	# plt.title('T-SNE of Activation at Top Layer - Prior Noise = {}'.format(prior_noise_level))
+	# plt.show()
 
-	cmap = get_cmap(10)
-	colour_array = []
-	idx_array = np.zeros((10,1))
-	for s in xrange(10):
-		idx_array[s,0] = s+1
-		colour_array.append(cmap(s+1))
+	# cmap = get_cmap(10)
+	# colour_array = []
+	# idx_array = np.zeros((10,1))
+	# for s in xrange(10):
+	# 	idx_array[s,0] = s+1
+	# 	colour_array.append(cmap(s+1))
 
-	plt.scatter(idx_array[:,0], idx_array[:,0], color=colour_array)
-	plt.title('T-SNE of Activation at Top Layer - Colour Legend')
-	plt.show()
+	# plt.scatter(idx_array[:,0], idx_array[:,0], color=colour_array)
+	# plt.title('T-SNE of Activation at Top Layer - Colour Legend')
+	# plt.show()
 
 def eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_path, n_latent, prior_noise_level, Limit = None, visual_flag = True):
 
