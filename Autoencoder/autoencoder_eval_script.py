@@ -168,6 +168,22 @@ def eval_autoencoder_encode(autoencoder_name, model_weight_path, noise_flag=Fals
 
 def eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_path, Limit = None, visual_flag = True, noise_flag=False, noise_level=4):
 	print('============================')
+	print('Pre-processing data:')
+	print('============================')
+
+	# the data, shuffled and split between train and test sets
+	(X_train, y_train), (X_test, y_test) = mnist.load_data()
+	X_train = X_train.reshape(-1, 784)
+	X_test = X_test.reshape(-1, 784)
+	X_train = X_train.astype("float32") / 255.0
+	X_test = X_test.astype("float32") / 255.0
+	print(X_train.shape[0], 'train samples')
+	print(X_test.shape[0], 'test samples')
+
+
+
+
+	print('============================')
 	print('Initialize Model: {}_{}'.format(autoencoder_name, noise_flag))
 	print('============================')
 
