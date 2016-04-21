@@ -35,6 +35,7 @@ from utils import sigmoid, get_cmap
 # 	eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_path, n_latent=n_latent, prior_noise_level=noise_level, Limit=250)
 
 
+
 def initiate_model(autoencoder_name, model_weight_path, hu_encoder, hu_decoder, n_latent, x_train, prior_noise_level, batch_size=256, continuous=False):
 	autoencoder = eval('{}(continuous, hu_encoder, hu_decoder, n_latent, x_train, prior_noise_level={}, batch_size=batch_size)'.format(autoencoder_name, prior_noise_level))
 	return autoencoder
@@ -144,6 +145,13 @@ def eval_autoencoder_encode(autoencoder_name, model_weight_path, n_latent, prior
 	# plt.show()
 
 def eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_path, n_latent, prior_noise_level, Limit = None, visual_flag = True):
+
+	print "Loading MNIST data"
+	# Retrieved from: http://deeplearning.net/data/mnist/mnist.pkl.gz
+	f = gzip.open('mnist.pkl.gz', 'rb')
+	(X_train, y_train), (X_valid, y_valid), (X_test, y_test) = cPickle.load(f)
+	f.close()
+
 
 	print('============================')
 	print('Initialize Model: {}_{}'.format(autoencoder_name, prior_noise_level))
