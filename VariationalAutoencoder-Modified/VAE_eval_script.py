@@ -1,16 +1,19 @@
 import sys
 sys.path.append('../')
-sys.path.append('../Utils')
-sys.path.append('./Models')
+sys.path.append('../Utils/')
+sys.path.append('./Models/')
 
 import numpy as np
 import time
 import os
+import cPickle
+import gzip
+
+#import models
 from VAE_normal_tanh import VAE as VAE_normal_tanh
 from VAE_uniform_tanh import VAE as VAE_uniform_tanh
 from VAE_normal import VAE as VAE_normal
-import cPickle
-import gzip
+
 
 from sklearn.manifold import TSNE
 from sklearn import metrics
@@ -70,8 +73,6 @@ def eval_autoencoder_recon(autoencoder_name, model_weight_path, n_latent, prior_
 	z_test = autoencoder.encode(X_test)
 	X_test_recon = autoencoder.decode(z_test)
 
-	print(X_test_recon.shape)
-
 	for i in xrange(nExamples):
 		X_test_recon = X_test_recon.reshape((-1,28,28))
 		plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
@@ -110,17 +111,9 @@ def eval_autoencoder_encode(autoencoder_name, model_weight_path, n_latent, prior
 
 	z_mean = np.mean(z_test)
 	z_median = np.median(z_test)
-	# z_prop_high = float(np.sum(z_test>0.0))/z_test.shape[0]
-	# z_prop_low = float(np.sum(z_test<=0.0))/z_test.shape[0]
-
-	#q_array = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
-	#z_percentiles = np.percentile(z_test, q_array)
-
-	
 
 	print('Z mean: {}'.format(z_mean))
 	print('Z median: {}'.format(z_median))
-	#print('Z percentiles: {}'.format(zip(q_array, z_percentiles)))
 
 	# tsne visualization of latent variables
 	nExamples = 1000
@@ -139,7 +132,6 @@ def eval_autoencoder_encode(autoencoder_name, model_weight_path, n_latent, prior
 	plt.title('T-SNE of Activation at Top Layer - Prior Noise = {}'.format(prior_noise_level))
 	plt.show()
 
-
 	cmap = get_cmap(10)
 	colour_array = []
 	idx_array = np.zeros((10,1))
@@ -152,6 +144,7 @@ def eval_autoencoder_encode(autoencoder_name, model_weight_path, n_latent, prior
 	plt.show()
 
 def eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_path, n_latent, prior_noise_level, Limit = None, visual_flag = True):
+
 	print('============================')
 	print('Initialize Model: {}_{}'.format(autoencoder_name, prior_noise_level))
 	print('============================')
