@@ -69,6 +69,11 @@ MNIST_data/
 tmp/
 mnist_models/
 results/
+
+Autoencoder/results
+Autoencoder/mnist_models
+Autoencoder/MNIST_data
+
 VariationalAutoencoder-Modified/results
 
 
