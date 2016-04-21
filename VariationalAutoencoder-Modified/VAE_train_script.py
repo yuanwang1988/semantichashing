@@ -1,5 +1,7 @@
 import sys
 sys.path.append('../')
+sys.path.append('../Utils')
+sys.path.append('./Models')
 
 
 import numpy as np
@@ -98,4 +100,4 @@ def train_VAE(VAE_name, VAE_save_folder, continuous = False, \
 if __name__ == '__main__':
     # train_VAE('VAE_normal_tanh', './test_model_normal_tanh/')
     # train_VAE('VAE_uniform_tanh', './test_model_uniform_tanh/')
-    train_VAE('VAE_normal', './results/test_model_normal/', n_latent=49, n_epochs=20, batch_size=256)
+    train_VAE('VAE_normal', './results/test_model_normal/', n_latent=20, prior_noise_level=4, n_epochs=10, batch_size=256)
