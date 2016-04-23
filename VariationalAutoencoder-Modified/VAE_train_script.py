@@ -3,12 +3,16 @@ sys.path.append('../')
 sys.path.append('../Utils/')
 sys.path.append('./Models/')
 
+
+import re
 import numpy as np
 import time
 import os
 from VAE_normal_tanh import VAE as VAE_normal_tanh
+from VAE_normal_tanh_beta import VAE as VAE_normal_tanh_beta
 from VAE_uniform_tanh import VAE as VAE_uniform_tanh
 from VAE_normal import VAE as VAE_normal
+from VAE_beta_approx import VAE as VAE_beta_approx
 import cPickle
 import gzip
 
@@ -20,7 +24,7 @@ from utils import sigmoid, get_cmap
 np.random.seed(42)
 
 
-def train_VAE(VAE_name, VAE_save_folder, continuous = False, \
+def train_VAE(VAE_name, VAE_save_folder, beta_flag, continuous = False, \
     hu_encoder=400, hu_decoder=400, n_latent = 20, \
     prior_noise_level = 4, \
     n_epochs = 10, batch_size=256):
@@ -61,6 +65,10 @@ def train_VAE(VAE_name, VAE_save_folder, continuous = False, \
         LB_list = np.load(path + "LB_list.npy")
         epoch = len(LB_list)
 
+    if beta_flag:
+        pre_beta_path = re.sub(r'_beta', r'', path)
+        model.load_parameters(pre_beta_path)
+
     print "iterating"
     while epoch < n_epochs:
         epoch += 1
@@ -99,4 +107,7 @@ def train_VAE(VAE_name, VAE_save_folder, continuous = False, \
 if __name__ == '__main__':
     # train_VAE('VAE_normal_tanh', './test_model_normal_tanh/')
     # train_VAE('VAE_uniform_tanh', './test_model_uniform_tanh/')
-    train_VAE('VAE_normal_tanh', './results/test_model_normal_tanh/', n_latent=20, prior_noise_level=4, n_epochs=10, batch_size=256)
+    #train_VAE('VAE_normal_tanh', './results/test_model_normal_tanh/', beta_flag=False, n_latent=20, prior_noise_level=4, n_epochs=10, batch_size=256)
+    #train_VAE('VAE_normal_tanh_beta', './results/test_model_normal_tanh_beta/', beta_flag=True, n_latent=20, prior_noise_level=4, n_epochs=10, batch_size=256)
+
+    train_VAE('VAE_beta_approx', './working_models/test_model_beta_approx/', beta_flag=False, n_latent=20, prior_noise_level=4, n_epochs=10, batch_size=256)

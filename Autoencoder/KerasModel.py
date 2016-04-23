@@ -150,7 +150,25 @@ class KerasModel(object):
 
 		return z
 
+	def decode(self, latent_z):
+		'''
+		Inputs:
+			- latent_z			- N'xh matrix of hidden activations (innermost latent representation)
+		Outputs:
+			- X_recon		 	- N'xD matrix of reconstructed features
+		'''	
 
+		for k in xrange(len(self.model.layers[0].decoder.layers)):
+			weights = self.model.layers[0].decoder.layers[k].get_weights()
+			self.decoder.layers[k].set_weights(weights)
+
+
+		output_layer_num = len(self.decoder.layers) - 1
+		get_layer_helper = theano.function([self.decoder.layers[0].input], self.decoder.layers[output_layer_num].get_output(train=False), allow_input_downcast=True)
+
+		X_recon = get_layer_helper(latent_z)
+
+		return X_recon
 
 def autoencoder_transfer_weights(src_model, target_model):
 	for k in xrange(len(src_model.model.layers[0].encoder.layers)):
@@ -272,6 +290,15 @@ class MNIST_autoencoder_784_392_196_98_tanh(KerasModel):
 
 		self.model = ae
 
+		decoder2 = Sequential()
+		decoder2.add(Dense(input_dim=98, output_dim=196, activation='tanh'))
+		decoder2.add(Dense(input_dim=196, output_dim=392, activation='tanh'))
+		decoder2.add(Dense(input_dim=392, output_dim=784, activation='softplus'))
+
+		decoder2.compile(loss='mean_squared_error', optimizer=RMSprop())
+
+		self.decoder = decoder2
+
 class MNIST_autoencoder_784_392_196_98_49_tanh(KerasModel):
 	def __init__(self, noise_flag=False, noise_level=4):
 		'''
@@ -303,6 +330,17 @@ class MNIST_autoencoder_784_392_196_98_49_tanh(KerasModel):
 		ae.compile(loss='mean_squared_error', optimizer=RMSprop())
 
 		self.model = ae
+
+		decoder2 = Sequential()
+		decoder2.add(Dense(input_dim=49, output_dim=98, activation='tanh'))
+		decoder2.add(Dense(input_dim=98, output_dim=196, activation='tanh'))
+		decoder2.add(Dense(input_dim=196, output_dim=392, activation='tanh'))
+		decoder2.add(Dense(input_dim=392, output_dim=784, activation='softplus'))
+
+		decoder2.compile(loss='mean_squared_error', optimizer=RMSprop())
+
+		self.decoder = decoder2
+
 
 
 class MNIST_autoencoder_784_392_196_98_49_24_tanh(KerasModel):
@@ -339,6 +377,19 @@ class MNIST_autoencoder_784_392_196_98_49_24_tanh(KerasModel):
 
 		self.model = ae
 
+		decoder.compile(loss='mean_squared_error', optimizer=RMSprop())
+
+		decoder2 = Sequential()
+		decoder2.add(Dense(input_dim=24, output_dim=49, activation='tanh'))
+		decoder2.add(Dense(input_dim=49, output_dim=98, activation='tanh'))
+		decoder2.add(Dense(input_dim=98, output_dim=196, activation='tanh'))
+		decoder2.add(Dense(input_dim=196, output_dim=392, activation='tanh'))
+		decoder2.add(Dense(input_dim=392, output_dim=784, activation='softplus'))
+
+		decoder2.compile(loss='mean_squared_error', optimizer=RMSprop())
+
+		self.decoder = decoder2
+
 
 class MNIST_autoencoder_784_392_196_98_49_20_tanh(KerasModel):
 	def __init__(self, noise_flag=False, noise_level=4):
@@ -357,11 +408,12 @@ class MNIST_autoencoder_784_392_196_98_49_20_tanh(KerasModel):
 			encoder.add(GaussianNoise(noise_level))
 		encoder.add(Activation(activation='tanh'))
 
-		decoder = containers.Sequential([Dense(input_dim=20, output_dim=49, activation='tanh'), \
-			Dense(input_dim=49, output_dim=98, activation='tanh'), \
-			Dense(input_dim=98, output_dim=196, activation='tanh'), \
-			Dense(input_dim=196, output_dim=392, activation='tanh'), \
-			Dense(input_dim=392, output_dim=784, activation='softplus')])
+		decoder = Sequential()
+		decoder.add(Dense(input_dim=20, output_dim=49, activation='tanh'))
+		decoder.add(Dense(input_dim=49, output_dim=98, activation='tanh'))
+		decoder.add(Dense(input_dim=98, output_dim=196, activation='tanh'))
+		decoder.add(Dense(input_dim=196, output_dim=392, activation='tanh'))
+		decoder.add(Dense(input_dim=392, output_dim=784, activation='softplus'))
 
 		# Dropout.  Not sure if I like it
 		#encoder2 = containers.Sequential([Dropout(0.9, input_shape=(784,)), Dense(input_dim=784, output_dim=392, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=392, output_dim=196, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=196, output_dim=98, activation='relu'), Dropout(0.8, input_shape=(98,)), GaussianNoise(1)])
@@ -372,6 +424,18 @@ class MNIST_autoencoder_784_392_196_98_49_20_tanh(KerasModel):
 		ae.compile(loss='mean_squared_error', optimizer=RMSprop())
 
 		self.model = ae
+
+
+		decoder2 = Sequential()
+		decoder2.add(Dense(input_dim=20, output_dim=49, activation='tanh'))
+		decoder2.add(Dense(input_dim=49, output_dim=98, activation='tanh'))
+		decoder2.add(Dense(input_dim=98, output_dim=196, activation='tanh'))
+		decoder2.add(Dense(input_dim=196, output_dim=392, activation='tanh'))
+		decoder2.add(Dense(input_dim=392, output_dim=784, activation='softplus'))
+
+		decoder2.compile(loss='mean_squared_error', optimizer=RMSprop())
+
+		self.decoder = decoder2
 
 
 class MNIST_autoencoder_784_392_196_98_49_24_12_tanh(KerasModel):
@@ -411,6 +475,20 @@ class MNIST_autoencoder_784_392_196_98_49_24_12_tanh(KerasModel):
 
 		self.model = ae
 
+		decoder2 = Sequential()
+		decoder2.add(Dense(input_dim=12, output_dim=24, activation='tanh'))
+		decoder2.add(Dense(input_dim=24, output_dim=49, activation='tanh'))
+		decoder2.add(Dense(input_dim=49, output_dim=98, activation='tanh'))
+		decoder2.add(Dense(input_dim=98, output_dim=196, activation='tanh'))
+		decoder2.add(Dense(input_dim=196, output_dim=392, activation='tanh'))
+		decoder2.add(Dense(input_dim=392, output_dim=784, activation='softplus'))
+
+		decoder2.compile(loss='mean_squared_error', optimizer=RMSprop())
+
+		self.decoder = decoder2
+
+
+
 class MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh(KerasModel):
 	def __init__(self, noise_flag=False, noise_level=4):
 		'''
@@ -443,6 +521,49 @@ class MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh(KerasModel):
 		#encoder2 = containers.Sequential([Dropout(0.9, input_shape=(784,)), Dense(input_dim=784, output_dim=392, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=392, output_dim=196, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=196, output_dim=98, activation='relu'), Dropout(0.8, input_shape=(98,)), GaussianNoise(1)])
 		#decoder2 = containers.Sequential([Dropout(0.8, input_shape=(98,)), Dense(input_dim=98, output_dim=196, activation='relu'), Dropout(0.8, input_shape=(196,)), Dense(input_dim=196, output_dim=392, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=392, output_dim=784)])
 
+		ae.add(AutoEncoder(encoder=encoder, decoder=decoder, output_reconstruction=True))   #, tie_weights=True))
+		ae.compile(loss='mean_squared_error', optimizer=RMSprop())
+
+		self.model = ae
+
+		decoder2 = Sequential()
+		decoder2.add(Dense(input_dim=6, output_dim=12, activation='tanh'))
+		decoder2.add(Dense(input_dim=12, output_dim=24, activation='tanh'))
+		decoder2.add(Dense(input_dim=24, output_dim=49, activation='tanh'))
+		decoder2.add(Dense(input_dim=49, output_dim=98, activation='tanh'))
+		decoder2.add(Dense(input_dim=98, output_dim=196, activation='tanh'))
+		decoder2.add(Dense(input_dim=196, output_dim=392, activation='tanh'))
+		decoder2.add(Dense(input_dim=392, output_dim=784, activation='softplus'))
+
+		decoder2.compile(loss='mean_squared_error', optimizer=RMSprop())
+
+		self.decoder = decoder2
+
+
+class Reuters_autoencoder_2000_512_512_128_tanh(KerasModel):
+	def __init__(self, noise_flag=False, noise_level=4):
+		'''
+		Specify the architecture of the neural network (autoencoder) here.
+		'''
+		ae = Sequential()
+
+		encoder = Sequential()
+		encoder.add(Dense(input_dim=2000, output_dim=512, activation='tanh'))
+		encoder.add(Dense(input_dim=512, output_dim=512, activation='tanh'))
+		encoder.add(Dense(input_dim=512, output_dim=128, activation = 'linear'))
+		if noise_flag:
+			encoder.add(GaussianNoise(noise_level))
+		encoder.add(Activation(activation='tanh'))
+
+		decoder = containers.Sequential([ \
+			Dense(input_dim=128, output_dim=512, activation='tanh'), \
+			Dense(input_dim=512, output_dim=512, activation='tanh'), \
+			Dense(input_dim=512, output_dim=2000, activation='softplus')])
+
+		# Dropout.  Not sure if I like it
+		#encoder2 = containers.Sequential([Dropout(0.9, input_shape=(784,)), Dense(input_dim=784, output_dim=392, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=392, output_dim=196, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=196, output_dim=98, activation='relu'), Dropout(0.8, input_shape=(98,)), GaussianNoise(1)])
+		#decoder2 = containers.Sequential([Dropout(0.8, input_shape=(98,)), Dense(input_dim=98, output_dim=196, activation='relu'), Dropout(0.8, input_shape=(196,)), Dense(input_dim=196, output_dim=392, activation='relu'), Dropout(0.8, input_shape=(392,)), Dense(input_dim=392, output_dim=784)])
+
 
 
 		ae.add(AutoEncoder(encoder=encoder, decoder=decoder, output_reconstruction=True))   #, tie_weights=True))
@@ -450,6 +571,14 @@ class MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh(KerasModel):
 
 		self.model = ae
 
+		decoder2 = Sequential()
+		decoder2.add(Dense(input_dim=128, output_dim=512, activation='tanh'))
+		decoder2.add(Dense(input_dim=512, output_dim=512, activation='tanh'))
+		decoder2.add(Dense(input_dim=512, output_dim=2000, activation='softplus'))
+
+		decoder2.compile(loss='mean_squared_error', optimizer=RMSprop())
+
+		self.decoder = decoder2
 
 
 ####################################

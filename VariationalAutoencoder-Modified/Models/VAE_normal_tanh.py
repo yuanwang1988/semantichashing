@@ -151,8 +151,8 @@ class VAE:
         KLD = 0.5 * T.sum(1 + log_sigma - (mu**2 + T.exp(log_sigma)) / (2*(self.prior_noise_level**2)) , axis=1, keepdims=True)
 
         # KLD = cross-entroy of the sample distribution of sigmoid(z) from the beta distribution
-        # alpha = 0.5
-        # beta = 0.5
+        # alpha = 0.2
+        # beta = 0.2
         # sigmoidZ = T.nnet.sigmoid(z)
         # KLD = 25*T.sum((alpha-1)*sigmoidZ + (beta-1)*(1-sigmoidZ) - betaln(alpha,beta), axis=1, keepdims=True)
         # KLD = 0

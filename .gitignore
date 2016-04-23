@@ -73,8 +73,10 @@ results/
 Autoencoder/results
 Autoencoder/mnist_models
 Autoencoder/MNIST_data
+Autoencoder/working_models
 
 VariationalAutoencoder-Modified/results
+VariationalAutoencoder-Modified/working_models
 
 
 #Exclude data

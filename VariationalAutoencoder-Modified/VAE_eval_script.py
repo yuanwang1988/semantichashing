@@ -12,10 +12,12 @@ import gzip
 #import models
 from VAE_normal_tanh import VAE as VAE_normal_tanh
 from VAE_uniform_tanh import VAE as VAE_uniform_tanh
+from VAE_normal_tanh_beta import VAE as VAE_normal_tanh_beta
 from VAE_normal import VAE as VAE_normal
+from VAE_beta_approx import VAE as VAE_beta_approx
 
 
-# from sklearn.manifold import TSNE
+from sklearn.manifold import TSNE
 from sklearn import metrics
 
 #plotting related
@@ -116,33 +118,33 @@ def eval_autoencoder_encode(autoencoder_name, model_weight_path, n_latent, prior
 	print('Z mean: {}'.format(z_mean))
 	print('Z median: {}'.format(z_median))
 
-	# # tsne visualization of latent variables
-	# nExamples = 1000
+	# tsne visualization of latent variables
+	nExamples = 1000
 
-	# cmap = get_cmap(10)
-	# colour_array = []
-	# for s in xrange(nExamples):
-	# 	colour_array.append(cmap(y_test[s]))
+	cmap = get_cmap(10)
+	colour_array = []
+	for s in xrange(nExamples):
+		colour_array.append(cmap(y_test[s]))
 
 
-	# tsne_model = TSNE(n_components=2, random_state=0)
-	# np.set_printoptions(suppress=True)
-	# tsne_vec = tsne_model.fit_transform(z_test[0:nExamples,:])
+	tsne_model = TSNE(n_components=2, random_state=0)
+	np.set_printoptions(suppress=True)
+	tsne_vec = tsne_model.fit_transform(z_test[0:nExamples,:])
 
-	# plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array, s=1)
-	# plt.title('T-SNE of Activation at Top Layer - Prior Noise = {}'.format(prior_noise_level))
-	# plt.show()
+	plt.scatter(tsne_vec[:,0], tsne_vec[:,1], color=colour_array, s=1)
+	plt.title('T-SNE of Activation at Top Layer - Prior Noise = {}'.format(prior_noise_level))
+	plt.show()
 
-	# cmap = get_cmap(10)
-	# colour_array = []
-	# idx_array = np.zeros((10,1))
-	# for s in xrange(10):
-	# 	idx_array[s,0] = s+1
-	# 	colour_array.append(cmap(s+1))
+	cmap = get_cmap(10)
+	colour_array = []
+	idx_array = np.zeros((10,1))
+	for s in xrange(10):
+		idx_array[s,0] = s+1
+		colour_array.append(cmap(s+1))
 
-	# plt.scatter(idx_array[:,0], idx_array[:,0], color=colour_array)
-	# plt.title('T-SNE of Activation at Top Layer - Colour Legend')
-	# plt.show()
+	plt.scatter(idx_array[:,0], idx_array[:,0], color=colour_array)
+	plt.title('T-SNE of Activation at Top Layer - Colour Legend')
+	plt.show()
 
 def eval_autoencoder_hashlookup_precision_recall(autoencoder_name, model_weight_path, n_latent, prior_noise_level, Limit = None, visual_flag = True):
 
@@ -383,13 +385,199 @@ def eval_autoencoder_hashlookup(autoencoder_name, model_weight_path, n_latent, p
 		print('-------')
 
 
+def eval_autoencoder_sample(autoencoder_name, model_weight_path, n_latent, prior_noise_level, latent_z = None):
+
+	print('============================')
+	print('Initialize Model: {}_{}'.format(autoencoder_name, prior_noise_level))
+	print('============================')
+
+	autoencoder = initiate_model(autoencoder_name, model_weight_path, hu_encoder=400, hu_decoder=400, n_latent=n_latent, x_train=X_train, prior_noise_level=prior_noise_level, batch_size=256)
+
+	autoencoder.load_parameters(model_weight_path)
+
+	print('============================')
+	print('Generate Samples')
+	print('============================')
+
+
+	if latent_z == None:
+		latent_z = np.random.randint(2, size=n_latent)*2-1
+
+	latent_z = np.array([latent_z])
+
+	print('Latent Z: {}'.format(latent_z))
+
+	latent_z = latent_z * 100
+
+	X_sample = autoencoder.decode(latent_z)
+
+	plt.imshow(X_sample.reshape((28,28)), cmap=plt.get_cmap("gray"))
+	plt.show()
+
+
+
+	
+
+
 if __name__=='__main__':
-    print "Loading MNIST data"
-    # Retrieved from: http://deeplearning.net/data/mnist/mnist.pkl.gz
-    f = gzip.open('mnist.pkl.gz', 'rb')
-    (X_train, y_train), (X_valid, y_valid), (X_test, y_test) = cPickle.load(f)
-    f.close()
+	print "Loading MNIST data"
+	# Retrieved from: http://deeplearning.net/data/mnist/mnist.pkl.gz
+	f = gzip.open('mnist.pkl.gz', 'rb')
+	(X_train, y_train), (X_valid, y_valid), (X_test, y_test) = cPickle.load(f)
+	f.close()
+
+	eval_autoencoder_recon('VAE_beta_approx', './working_models/test_model_beta_approx', n_latent=20, prior_noise_level=4)
+	eval_autoencoder_encode('VAE_beta_approx', './working_models/test_model_beta_approx', n_latent=20, prior_noise_level=4)
+
+	# eval_autoencoder_encode('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise4', n_latent=20, prior_noise_level=4)
+	# eval_autoencoder_encode('VAE_uniform_tanh', './results/test_model_uniform_tanh_L20_Noise4', n_latent=20, prior_noise_level=4)
 
 
-    eval_autoencoder_encode('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise4', n_latent=20, prior_noise_level=4)
-    eval_autoencoder_encode('VAE_uniform_tanh', './results/test_model_uniform_tanh_L20_Noise4', n_latent=20, prior_noise_level=4)
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise4', n_latent=20, prior_noise_level=4)
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise4', n_latent=20, prior_noise_level=4)
+	# eval_autoencoder_encode('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise4', n_latent=20, prior_noise_level=4)
+	# eval_autoencoder_hashlookup_precision_recall('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise4', n_latent=20, prior_noise_level=4, Limit=2500)
+	# eval_autoencoder_hashlookup('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise4', n_latent=20, prior_noise_level=4)
+
+
+	#eval_autoencoder_sample('VAE_normal_tanh', './results/test_model_normal_tanh_L6_Noise4', n_latent=6, prior_noise_level=4, latent_z=[1,0,1,0,1,1])
+
+	#################################
+	#Model Checking:				#
+	#################################
+
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L49_Noise1/', n_latent=49, prior_noise_level=1)
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L49_Noise2/', n_latent=49, prior_noise_level=2)
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L49_Noise4/', n_latent=49, prior_noise_level=4)
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L49_Noise8/', n_latent=49, prior_noise_level=8)
+
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L20_Noise1/', n_latent=20, prior_noise_level=1)
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L20_Noise2/', n_latent=20, prior_noise_level=2)
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L20_Noise4/', n_latent=20, prior_noise_level=4)
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L20_Noise8/', n_latent=20, prior_noise_level=8)
+
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L49_Noise1/', n_latent=49, prior_noise_level=1, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L49_Noise2/', n_latent=49, prior_noise_level=2, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L49_Noise4/', n_latent=49, prior_noise_level=4, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L49_Noise8/', n_latent=49, prior_noise_level=8, nExamples=3)
+
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L20_Noise1/', n_latent=20, prior_noise_level=1, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L20_Noise2/', n_latent=20, prior_noise_level=2, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L20_Noise4/', n_latent=20, prior_noise_level=4, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L20_Noise8/', n_latent=20, prior_noise_level=8, nExamples=3)
+
+
+
+
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L12_Noise1/', n_latent=12, prior_noise_level=1)
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L12_Noise2/', n_latent=12, prior_noise_level=2)
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L12_Noise4/', n_latent=12, prior_noise_level=4)
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L12_Noise8/', n_latent=12, prior_noise_level=8)
+
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L6_Noise1/', n_latent=6, prior_noise_level=1)
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L6_Noise2/', n_latent=6, prior_noise_level=2)
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L6_Noise4/', n_latent=6, prior_noise_level=4)
+	# eval_autoencoder_RMSE('VAE_normal', './results/test_model_normal_L6_Noise8/', n_latent=6, prior_noise_level=8)
+
+
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L12_Noise1/', n_latent=12, prior_noise_level=1, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L12_Noise2/', n_latent=12, prior_noise_level=2, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L12_Noise4/', n_latent=12, prior_noise_level=4, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L12_Noise8/', n_latent=12, prior_noise_level=8, nExamples=3)
+
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L6_Noise1/', n_latent=6, prior_noise_level=1, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L6_Noise2/', n_latent=6, prior_noise_level=2, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L6_Noise4/', n_latent=6, prior_noise_level=4, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal', './results/test_model_normal_L6_Noise8/', n_latent=6, prior_noise_level=8, nExamples=3)
+
+
+
+
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L49_Noise1/', n_latent=49, prior_noise_level=1)
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L49_Noise2/', n_latent=49, prior_noise_level=2)
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L49_Noise4/', n_latent=49, prior_noise_level=4)
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L49_Noise8/', n_latent=49, prior_noise_level=8)
+
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise1/', n_latent=20, prior_noise_level=1)
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise2/', n_latent=20, prior_noise_level=2)
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise4/', n_latent=20, prior_noise_level=4)
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise8/', n_latent=20, prior_noise_level=8)
+
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L49_Noise1/', n_latent=49, prior_noise_level=1, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L49_Noise2/', n_latent=49, prior_noise_level=2, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L49_Noise4/', n_latent=49, prior_noise_level=4, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L49_Noise8/', n_latent=49, prior_noise_level=8, nExamples=3)
+
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise1/', n_latent=20, prior_noise_level=1, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise2/', n_latent=20, prior_noise_level=2, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise4/', n_latent=20, prior_noise_level=4, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L20_Noise8/', n_latent=20, prior_noise_level=8, nExamples=3)
+
+
+
+
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L12_Noise1/', n_latent=12, prior_noise_level=1)
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L12_Noise2/', n_latent=12, prior_noise_level=2)
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L12_Noise4/', n_latent=12, prior_noise_level=4)
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L12_Noise8/', n_latent=12, prior_noise_level=8)
+
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L6_Noise1/', n_latent=6, prior_noise_level=1)
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L6_Noise2/', n_latent=6, prior_noise_level=2)
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L6_Noise4/', n_latent=6, prior_noise_level=4)
+	# eval_autoencoder_RMSE('VAE_normal_tanh', './results/test_model_normal_tanh_L6_Noise8/', n_latent=6, prior_noise_level=8)
+
+
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L12_Noise1/', n_latent=12, prior_noise_level=1, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L12_Noise2/', n_latent=12, prior_noise_level=2, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L12_Noise4/', n_latent=12, prior_noise_level=4, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L12_Noise8/', n_latent=12, prior_noise_level=8, nExamples=3)
+
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L6_Noise1/', n_latent=6, prior_noise_level=1, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L6_Noise2/', n_latent=6, prior_noise_level=2, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L6_Noise4/', n_latent=6, prior_noise_level=4, nExamples=3)
+	# eval_autoencoder_recon('VAE_normal_tanh', './results/test_model_normal_tanh_L6_Noise8/', n_latent=6, prior_noise_level=8, nExamples=3)
+
+
+
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L49_Noise1/', n_latent=49, prior_noise_level=1)
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L49_Noise2/', n_latent=49, prior_noise_level=2)
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L49_Noise4/', n_latent=49, prior_noise_level=4)
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L49_Noise8/', n_latent=49, prior_noise_level=8)
+
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L20_Noise1/', n_latent=20, prior_noise_level=1)
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L20_Noise2/', n_latent=20, prior_noise_level=2)
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L20_Noise4/', n_latent=20, prior_noise_level=4)
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L20_Noise8/', n_latent=20, prior_noise_level=8)
+
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L49_Noise1/', n_latent=49, prior_noise_level=1, nExamples=3)
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L49_Noise2/', n_latent=49, prior_noise_level=2, nExamples=3)
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L49_Noise4/', n_latent=49, prior_noise_level=4, nExamples=3)
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L49_Noise8/', n_latent=49, prior_noise_level=8, nExamples=3)
+
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L20_Noise1/', n_latent=20, prior_noise_level=1, nExamples=3)
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L20_Noise2/', n_latent=20, prior_noise_level=2, nExamples=3)
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L20_Noise4/', n_latent=20, prior_noise_level=4, nExamples=3)
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L20_Noise8/', n_latent=20, prior_noise_level=8, nExamples=3)
+
+
+
+
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L12_Noise1/', n_latent=12, prior_noise_level=1)
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L12_Noise2/', n_latent=12, prior_noise_level=2)
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L12_Noise4/', n_latent=12, prior_noise_level=4)
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L12_Noise8/', n_latent=12, prior_noise_level=8)
+
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L6_Noise1/', n_latent=6, prior_noise_level=1)
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L6_Noise2/', n_latent=6, prior_noise_level=2)
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L6_Noise4/', n_latent=6, prior_noise_level=4)
+	# eval_autoencoder_RMSE('VAE_uniform_tanh', './results/test_model_uniform_tanh_L6_Noise8/', n_latent=6, prior_noise_level=8)
+
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L12_Noise1/', n_latent=12, prior_noise_level=1, nExamples=3)
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L12_Noise2/', n_latent=12, prior_noise_level=2, nExamples=3)
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L12_Noise4/', n_latent=12, prior_noise_level=4, nExamples=3)
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L12_Noise8/', n_latent=12, prior_noise_level=8, nExamples=3)
+
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L6_Noise1/', n_latent=6, prior_noise_level=1, nExamples=3)
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L6_Noise2/', n_latent=6, prior_noise_level=2, nExamples=3)
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L6_Noise4/', n_latent=6, prior_noise_level=4, nExamples=3)
+	# eval_autoencoder_recon('VAE_uniform_tanh', './results/test_model_uniform_tanh_L6_Noise8/', n_latent=6, prior_noise_level=8, nExamples=3)
