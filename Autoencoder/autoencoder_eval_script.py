@@ -813,7 +813,9 @@ def eval_autoencoder_hashlookup(autoencoder_name, model_weight_path, noise_flag,
 
 
 	#choose index of the test example
-	i = 652 #652 is one of the few samples that have close by neighbours
+	# i = 6  #4
+	# i = 41 #7
+	i = 258
 
 	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
 	plt.show()
@@ -899,6 +901,53 @@ def eval_autoencoder_sample(autoencoder_name, model_weight_path, noise_flag, noi
 	plt.show()
 
 
+def eval_autoencoder_recon_max_min_RMSE(autoencoder_name, model_weight_path, noise_flag, noise_level, nExamples=10):
+	print('============================')
+	print('Initialize Model: {}_{}'.format(autoencoder_name, noise_flag))
+	print('============================')
+
+	autoencoder = eval('{}(noise_flag={})'.format(autoencoder_name, noise_flag, noise_level))
+
+	autoencoder.load(model_weight_path)	
+
+	print('============================')
+	print('Reconstruction:')
+	print('============================')
+
+	x_test_recon = autoencoder.predict(X_test)
+
+	rmse_array = np.mean(np.square(X_test - x_test_recon), axis=1)
+
+	sorted_idx = np.argsort(rmse_array)
+
+	rmse_array = rmse_array[sorted_idx]
+	X_test_sorted = X_test[sorted_idx]
+	x_test_recon = x_test_recon[sorted_idx]
+
+
+	print('Smallest RMSE')
+	for i in xrange(nExamples):
+		x_test_recon = x_test_recon.reshape((-1,28,28))
+		plt.imshow(X_test_sorted.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
+		plt.show()
+
+		plt.imshow(x_test_recon[i,:,:], cmap=plt.get_cmap("gray"))
+		plt.show()
+
+		print('RMSE: {}'.format(rmse_array[i]))
+
+	print('Largest RMSE')
+	for i in xrange(x_test_recon.shape[0] - nExamples, x_test_recon.shape[0]):
+		x_test_recon = x_test_recon.reshape((-1,28,28))
+		plt.imshow(X_test_sorted.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
+		plt.show()
+
+		plt.imshow(x_test_recon[i,:,:], cmap=plt.get_cmap("gray"))
+		plt.show()
+
+		print('RMSE: {}'.format(rmse_array[i]))
+
+
 def eval_autoencoder_save_output(autoencoder_name, model_weight_path, noise_flag, noise_level):
 	print('============================')
 	print('Initialize Model: {}_{}'.format(autoencoder_name, noise_flag))
@@ -936,13 +985,28 @@ if __name__ == '__main__':
 	print(X_train.shape[0], 'train samples')
 	print(X_test.shape[0], 'test samples')
 
+	#eval_autoencoder_encode('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_8', noise_flag=True, noise_level=8)
+
+	# eval_autoencoder_RMSE('MNIST_autoencoder_784_392_196_98_49_20_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True_8', noise_flag=True, noise_level=4)
+	# eval_autoencoder_recon_max_min_RMSE('MNIST_autoencoder_784_392_196_98_49_20_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True_8', noise_flag=True, noise_level=4)
+
+	# eval_autoencoder_recon_max_min_RMSE('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_True_4', noise_flag=True, noise_level=4)	
+
+	# eval_autoencoder_sample('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_True_4', noise_flag=True, noise_level=4, n_latent=6)
+
+	# eval_autoencoder_hashlookup('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_8', noise_flag=True, noise_level=8)
+
+	eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_8', noise_flag=True, noise_level=8, Limit=2500, dataset='mnist')
+
+	#eval_autoencoder_recon_max_min_RMSE('MNIST_autoencoder_784_392_196_98_49_20_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True_4', noise_flag=True, noise_level=4)
+
 	#eval_pca_lda_cosine_lookup_precision_recall('PCA', n_components=20, dataset='mnist', Limit = 200, visual_flag = True)
 
 	#eval_pca_lda_hashlookup_precision_recall('LDA', n_components=20, dataset='mnist', Limit=200, visual_flag=True)
 
 	# eval_autoencoder_hashlookup_precision_recall_pca_lda('LDA', n_components=6, dataset='mnist', Limit = 200, visual_flag = True)
 
-	eval_autoencoder_save_output('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True_4', noise_flag=True, noise_level=4)
+	#eval_autoencoder_save_output('MNIST_autoencoder_784_392_196_98_49_20_tanh', './mnist_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True_4', noise_flag=True, noise_level=4)
 
 
 	# eval_autoencoder('MNIST_autoencoder_784_392_196_98_49_tanh', './mnist_models/mnist_autoencoder_784_392_196_98_49_tanh_False')
