@@ -115,12 +115,14 @@ class VAE:
 
         z = (1-(1-eps2)**(1.0/alpha))**(1.0/beta)
 
+        z = 2*(z-0.5)
+
         return z
 
     def decoder(self, x, z):
 
         #z = T.tanh(z)
-
+        z = z/2.0 + 0.5
         h_decoder = T.nnet.relu(T.dot(z, self.params['W_zh']) + self.params['b_zh'].dimshuffle('x', 0))
 
         if self.continuous:
