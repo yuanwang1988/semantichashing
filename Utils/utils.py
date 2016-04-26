@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.special import comb
-from sympy.combinatorics.graycode import GrayCode
+#from sympy.combinatorics.graycode import GrayCode
 import itertools
 
 #plotting related
@@ -21,13 +21,13 @@ def get_cmap(N):
     return map_index_to_rgb_color
 
 
-def get_graycode_array(N):
-	gray_code_generator = GrayCode(N)
-	gray_code_str_array = list(gray_code_generator.generate_gray())
+# def get_graycode_array(N):
+# 	gray_code_generator = GrayCode(N)
+# 	gray_code_str_array = list(gray_code_generator.generate_gray())
 
-	result = np.zeros((len(gray_code_str_array), N), dtype=int)
+# 	result = np.zeros((len(gray_code_str_array), N), dtype=int)
 
-	for i in xrange(len(gray_code_str_array)):
-		result[i,:] = np.fromstring(gray_code_str_array[i], dtype='u1') - ord('0')
+# 	for i in xrange(len(gray_code_str_array)):
+# 		result[i,:] = np.fromstring(gray_code_str_array[i], dtype='u1') - ord('0')
 
-	return result
+# 	return result
