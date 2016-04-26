@@ -8,7 +8,7 @@ sys.path.append('../Utils')
 import math
 import numpy as np
 import theano
-from utils import sigmoid, get_cmap
+from utils import sigmoid, get_cmap, get_graycode_array
 from hammingHashTable import hammingHashTable, linearLookupTable
 from cosineLookupTable import cosineLookupTable
 
@@ -1023,12 +1023,11 @@ def sample_all(autoencoder_name, model_weight_path, noise_flag, noise_level, n_l
 	N = int(math.floor(math.sqrt(N_samples)))
 	M = int(math.ceil(float(N_samples)/N))
 
-	counter = np.zeros((1,1), dtype=np.uint8)
+	graycode_array = get_graycode_array(n_latent)
 	for i in xrange(N):
 		for j in xrange(M):
-			latent_z = np.unpackbits(counter)
+			latent_z = graycode_array[i*M+j,:]
 			print(latent_z)
-			latent_z = latent_z[2:9]
 			latent_z = np.array([latent_z])
 
 			latent_z = (latent_z - 0.5)*2
@@ -1046,8 +1045,6 @@ def sample_all(autoencoder_name, model_weight_path, noise_flag, noise_level, n_l
 
 			frame1.axes.get_xaxis().set_visible(False)
 			frame1.axes.get_yaxis().set_visible(False)
-
-			counter = counter + 1
 
 	plt.show()
 
@@ -1106,14 +1103,14 @@ if __name__ == '__main__':
 
 	#sample_100('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_4', noise_flag=True, noise_level=4, n_latent=49)
 
-	sample_100('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_4', noise_flag=True, noise_level=4, n_latent=49)
+	#sample_100('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_4', noise_flag=True, noise_level=4, n_latent=49)
 
 	#eval_autoencoder_save_output('MNIST_autoencoder_784_392_196_98_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_tanh_True_4', noise_flag=True, noise_level=4)
 	#eval_autoencoder_save_output('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_4', noise_flag=True, noise_level=4)
 	#eval_autoencoder_save_output('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_True_4', noise_flag=True, noise_level=4)
 	#eval_autoencoder_save_output('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_True_4', noise_flag=True, noise_level=4)
 
-	#sample_all('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_True_4', noise_flag=True, noise_level=4, n_latent=6)
+	sample_all('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_True_4', noise_flag=True, noise_level=4, n_latent=6)
 
 	#eval_autoencoder_encode('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_8', noise_flag=True, noise_level=8)
 
