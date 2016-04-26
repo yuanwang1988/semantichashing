@@ -16,6 +16,7 @@ from VAE_uniform_tanh import VAE as VAE_uniform_tanh
 from VAE_normal_tanh_beta import VAE as VAE_normal_tanh_beta
 from VAE_normal import VAE as VAE_normal
 from VAE_beta_approx import VAE as VAE_beta_approx
+from VAE_beta_approx_log import VAE as VAE_beta_approx_log
 
 
 #from sklearn.manifold import TSNE
