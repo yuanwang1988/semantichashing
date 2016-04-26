@@ -28,7 +28,7 @@ import matplotlib.colors as colors
 
 #custom functions
 from hammingHashTable import hammingHashTable, linearLookupTable
-from utils import sigmoid, get_cmap, #get_graycode_array
+from utils import sigmoid, get_cmap#, get_graycode_array
 
 # def eval_autoencoder(autoencoder_name, model_weight_path, n_latent=20, prior_noise_level=4):
 # 	eval_autoencoder_RMSE(autoencoder_name, model_weight_path, n_latent=n_latent, prior_noise_level=noise_level)
