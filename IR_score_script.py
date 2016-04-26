@@ -3,8 +3,8 @@ from os import listdir
 from os.path import isfile, join
 from os import getcwd
 
-mypath = './Autoencoder/results/IR_score/'
-#mypath = './VariationalAutoencoder-Modified/results/IR_score/'
+#mypath = './Autoencoder/results/IR_score/'
+mypath = './VariationalAutoencoder-Modified/results/IR_score/'
 print 'loading all .npy and .npz files from ',mypath
 files = [ f for f in listdir(mypath) if isfile(join(mypath,f)) ]
 files.sort()

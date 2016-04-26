@@ -813,14 +813,53 @@ def eval_autoencoder_hashlookup(autoencoder_name, model_weight_path, noise_flag,
 
 
 	#choose index of the test example
-	# i = 6  #4
-	# i = 41 #7
-	i = 258
+	#i = 6  #4
+	i = 41 #7
+	# i = 258
 
 	plt.imshow(X_test.reshape((-1,28,28))[i,:,:], cmap=plt.get_cmap("gray"))
 	plt.show()
 
 	lookup_z = z_test[i,:]
+
+
+	N=4
+	M = 15
+
+	for i in xrange(N):
+		print('hamming distance of {}'.format(i))
+		resultX, resultZ = myTable.lookup(lookup_z, i)
+		resultIdx, _resultZ = myTable2.lookup(lookup_z, i)
+
+		print('Shape of results: {}'.format(resultX.shape))
+
+		for j in xrange(min(resultX.shape[0], M)):
+			frame1=plt.subplot(N, M, i*M+j+1)
+			print('Latent Z: {}'.format(resultZ[j,:]))
+			print('Index: {}'.format(resultIdx[j]))
+			plt.imshow(resultX[j,:].reshape((28,28)), cmap=plt.get_cmap("gray"))
+			print('-------')
+
+			frame1.axes.get_xaxis().set_visible(False)
+			frame1.axes.get_yaxis().set_visible(False)
+
+	plt.show()
+
+	print('hamming distance of 0')
+	resultX, resultZ = myTable.lookup(lookup_z, 0)
+	resultIdx, _resultZ = myTable2.lookup(lookup_z, 0)
+
+	print('Shape of results: {}'.format(resultX.shape))
+	for j in xrange(resultX.shape[0]):
+		print('Latent Z: {}'.format(resultZ[j,:]))
+		print('Index: {}'.format(resultIdx[j]))
+		fig = plt.figure()
+		plt.imshow(resultX[j,:].reshape((28,28)), cmap=plt.get_cmap("gray"))
+		plt.draw()
+		plt.pause(1) # <-------
+		raw_input("<Hit Enter To Close>")
+		plt.close(fig)
+		print('-------')
 
 	print('hamming distance of 1')
 	resultX, resultZ = myTable.lookup(lookup_z, 1)
@@ -970,6 +1009,85 @@ def eval_autoencoder_save_output(autoencoder_name, model_weight_path, noise_flag
 	np.savez('{}_{}_{}_data'.format(autoencoder_name, noise_flag, noise_level), X_test=X_test, y_test=y_test, z_test=z_test, z_test_tsne = tsne_vec)
 
 
+def sample_all(autoencoder_name, model_weight_path, noise_flag, noise_level, n_latent):
+	print('============================')
+	print('Initialize Model: {}_{}'.format(autoencoder_name, noise_flag))
+	print('============================')
+
+	autoencoder = eval('{}(noise_flag={})'.format(autoencoder_name, noise_flag, noise_level))
+
+	autoencoder.load(model_weight_path)
+
+
+	N_samples = math.pow(2, n_latent)
+	N = int(math.floor(math.sqrt(N_samples)))
+	M = int(math.ceil(float(N_samples)/N))
+
+	counter = np.zeros((1,1), dtype=np.uint8)
+	for i in xrange(N):
+		for j in xrange(M):
+			latent_z = np.unpackbits(counter)
+			print(latent_z)
+			latent_z = latent_z[2:9]
+			latent_z = np.array([latent_z])
+
+			latent_z = (latent_z - 0.5)*2
+			#latent_z = latent_z * 100
+
+			print('Latent Z: {}'.format(latent_z))
+
+			
+
+			X_sample = autoencoder.decode(latent_z)
+
+			frame1=plt.subplot(N, M, i*M+j+1)
+			plt.imshow(X_sample.reshape((28,28)), cmap=plt.get_cmap("gray"))
+			print('-------')
+
+			frame1.axes.get_xaxis().set_visible(False)
+			frame1.axes.get_yaxis().set_visible(False)
+
+			counter = counter + 1
+
+	plt.show()
+
+def sample_100(autoencoder_name, model_weight_path, noise_flag, noise_level, n_latent):
+	print('============================')
+	print('Initialize Model: {}_{}'.format(autoencoder_name, noise_flag))
+	print('============================')
+
+	autoencoder = eval('{}(noise_flag={})'.format(autoencoder_name, noise_flag, noise_level))
+
+	autoencoder.load(model_weight_path)
+
+
+	N = 10
+	M = 10
+
+	for i in xrange(N):
+		for j in xrange(M):
+			latent_z = np.random.randint(2, size=n_latent)*2-1
+
+			latent_z = np.array([latent_z])
+
+
+			#latent_z = (latent_z - 0.5)*2
+			#latent_z = latent_z * 100
+
+			print('Latent Z: {}'.format(latent_z))
+
+			
+			X_sample = autoencoder.decode(latent_z)
+
+			frame1=plt.subplot(N, M, i*M+j+1)
+			plt.imshow(X_sample.reshape((28,28)), cmap=plt.get_cmap("gray"))
+			print('-------')
+
+			frame1.axes.get_xaxis().set_visible(False)
+			frame1.axes.get_yaxis().set_visible(False)
+
+	plt.show()
+
 
 if __name__ == '__main__':
 	print('============================')
@@ -985,6 +1103,18 @@ if __name__ == '__main__':
 	print(X_train.shape[0], 'train samples')
 	print(X_test.shape[0], 'test samples')
 
+
+	#sample_100('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_4', noise_flag=True, noise_level=4, n_latent=49)
+
+	sample_100('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_4', noise_flag=True, noise_level=4, n_latent=49)
+
+	#eval_autoencoder_save_output('MNIST_autoencoder_784_392_196_98_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_tanh_True_4', noise_flag=True, noise_level=4)
+	#eval_autoencoder_save_output('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_4', noise_flag=True, noise_level=4)
+	#eval_autoencoder_save_output('MNIST_autoencoder_784_392_196_98_49_24_12_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_tanh_True_4', noise_flag=True, noise_level=4)
+	#eval_autoencoder_save_output('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_True_4', noise_flag=True, noise_level=4)
+
+	#sample_all('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_True_4', noise_flag=True, noise_level=4, n_latent=6)
+
 	#eval_autoencoder_encode('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_8', noise_flag=True, noise_level=8)
 
 	# eval_autoencoder_RMSE('MNIST_autoencoder_784_392_196_98_49_20_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True_8', noise_flag=True, noise_level=4)
@@ -994,9 +1124,9 @@ if __name__ == '__main__':
 
 	# eval_autoencoder_sample('MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_24_12_6_tanh_True_4', noise_flag=True, noise_level=4, n_latent=6)
 
-	# eval_autoencoder_hashlookup('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_8', noise_flag=True, noise_level=8)
+	#eval_autoencoder_hashlookup('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_8', noise_flag=True, noise_level=8)
 
-	eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_8', noise_flag=True, noise_level=8, Limit=2500, dataset='mnist')
+	# eval_autoencoder_hashlookup_precision_recall('MNIST_autoencoder_784_392_196_98_49_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_tanh_True_8', noise_flag=True, noise_level=8, Limit=2500, dataset='mnist')
 
 	#eval_autoencoder_recon_max_min_RMSE('MNIST_autoencoder_784_392_196_98_49_20_tanh', './results/final_models/MNIST_autoencoder_784_392_196_98_49_20_tanh_True_4', noise_flag=True, noise_level=4)
 
