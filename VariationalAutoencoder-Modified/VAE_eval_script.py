@@ -28,7 +28,7 @@ import matplotlib.colors as colors
 
 #custom functions
 from hammingHashTable import hammingHashTable, linearLookupTable
-from utils import sigmoid, get_cmap, get_graycode_array
+from utils import sigmoid, get_cmap, #get_graycode_array
 
 # def eval_autoencoder(autoencoder_name, model_weight_path, n_latent=20, prior_noise_level=4):
 # 	eval_autoencoder_RMSE(autoencoder_name, model_weight_path, n_latent=n_latent, prior_noise_level=noise_level)
@@ -508,46 +508,46 @@ def eval_autoencoder_recon_max_min_RMSE(autoencoder_name, model_weight_path, n_l
 		print('RMSE: {}'.format(rmse_array[i]))
 	
 
-def sample_all(autoencoder_name, model_weight_path, n_latent, prior_noise_level):
-	print('============================')
-	print('Initialize Model: {}_{}'.format(autoencoder_name, prior_noise_level))
-	print('============================')
+# def sample_all(autoencoder_name, model_weight_path, n_latent, prior_noise_level):
+# 	print('============================')
+# 	print('Initialize Model: {}_{}'.format(autoencoder_name, prior_noise_level))
+# 	print('============================')
 
-	autoencoder = initiate_model(autoencoder_name, model_weight_path, hu_encoder=400, hu_decoder=400, n_latent=n_latent, x_train=X_train, prior_noise_level=prior_noise_level, batch_size=256)
+# 	autoencoder = initiate_model(autoencoder_name, model_weight_path, hu_encoder=400, hu_decoder=400, n_latent=n_latent, x_train=X_train, prior_noise_level=prior_noise_level, batch_size=256)
 
-	autoencoder.load_parameters(model_weight_path)
+# 	autoencoder.load_parameters(model_weight_path)
 
 
-	N_samples = math.pow(2, n_latent)
-	N = int(math.floor(math.sqrt(N_samples)))
-	M = int(math.ceil(float(N_samples)/N))
+# 	N_samples = math.pow(2, n_latent)
+# 	N = int(math.floor(math.sqrt(N_samples)))
+# 	M = int(math.ceil(float(N_samples)/N))
 
-	graycode_array = get_graycode_array(n_latent)
-	for i in xrange(N):
-		for j in xrange(M):
-			latent_z = graycode_array[i*M+j,:]
-			print(latent_z)
-			latent_z = np.array([latent_z])
+# 	graycode_array = get_graycode_array(n_latent)
+# 	for i in xrange(N):
+# 		for j in xrange(M):
+# 			latent_z = graycode_array[i*M+j,:]
+# 			print(latent_z)
+# 			latent_z = np.array([latent_z])
 
-			latent_z = (latent_z - 0.5)*2
-			latent_z = latent_z * 8
+# 			latent_z = (latent_z - 0.5)*2
+# 			latent_z = latent_z * 8
 
-			print('Latent Z: {}'.format(latent_z))
+# 			print('Latent Z: {}'.format(latent_z))
 
 			
 
-			X_sample = autoencoder.decode(latent_z)
+# 			X_sample = autoencoder.decode(latent_z)
 
-			frame1=plt.subplot(N, M, i*M+j+1)
-			plt.imshow(X_sample.reshape((28,28)), cmap=plt.get_cmap("gray"))
-			print('-------')
+# 			frame1=plt.subplot(N, M, i*M+j+1)
+# 			plt.imshow(X_sample.reshape((28,28)), cmap=plt.get_cmap("gray"))
+# 			print('-------')
 
-			frame1.axes.get_xaxis().set_visible(False)
-			frame1.axes.get_yaxis().set_visible(False)
+# 			frame1.axes.get_xaxis().set_visible(False)
+# 			frame1.axes.get_yaxis().set_visible(False)
 
-			#counter = counter + 1
+# 			#counter = counter + 1
 
-	plt.show()
+# 	plt.show()
 
 def sample_100(autoencoder_name, model_weight_path, n_latent, prior_noise_level):
 	print('============================')
